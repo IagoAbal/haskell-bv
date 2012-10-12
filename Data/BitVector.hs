@@ -185,7 +185,7 @@ u /=. v = not $ u ==. v
 
 -- | Reverse bit-indexing.
 --
--- Index from the end of the sequenc
+-- Index starting from the most significant bit.
 --
 -- @u !. i == u \@. (size u - i - 1) @
 --
