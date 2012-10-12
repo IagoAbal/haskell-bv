@@ -30,6 +30,8 @@ module Data.BitVector
   , ones, zeros
     -- * Comparison
   , (==.), (/=.)
+  , (<.), (<=.), (>.), (>=.)
+  , slt, sle, sgt, sge
     -- * Indexing
   , (@.), (@@)
   , (!.)
@@ -153,6 +155,55 @@ instance Ord BV where
 --
 (/=.) :: BV -> BV -> Bool
 u /=. v = not $ u ==. v
+{-# INLINE (/=.) #-}
+
+-- | Fixed-size /less-than/.
+--
+(<.) :: BV -> BV -> Bool
+(BV n a) <. (BV m b) = n == m && a < b
+{-# INLINE (<.) #-}
+
+-- | Fixed-size /less-than-or-equals/.
+--
+(<=.) :: BV -> BV -> Bool
+(BV n a) <=. (BV m b) = n == m && a <= b
+{-# INLINE (<=.) #-}
+
+-- | Fixed-size /greater-than/.
+--
+(>.) :: BV -> BV -> Bool
+(BV n a) >. (BV m b) = n == m && a > b
+{-# INLINE (>.) #-}
+
+-- | Fixed-size /greater-than-or-equals/.
+--
+(>=.) :: BV -> BV -> Bool
+(BV n a) >=. (BV m b) = n == m && a >= b
+{-# INLINE (>=.) #-}
+
+-- | Fixed-size signed /less-than/.
+--
+slt :: BV -> BV -> Bool
+u@BV{size=n} `slt` v@BV{size=m} = n == m && int u < int v
+{-# INLINE slt #-}
+
+-- | Fixed-size signed /less-than-or-equals/.
+--
+sle :: BV -> BV -> Bool
+u@BV{size=n} `sle` v@BV{size=m} = n == m && int u <= int v
+{-# INLINE sle #-}
+
+-- | Fixed-size signed /greater-than/.
+--
+sgt :: BV -> BV -> Bool
+u@BV{size=n} `sgt` v@BV{size=m} = n == m && int u > int v
+{-# INLINE sgt #-}
+
+-- | Fixed-size signed /greater-than-or-equals/.
+--
+sge :: BV -> BV -> Bool
+u@BV{size=n} `sge` v@BV{size=m} = n == m && int u >= int v
+{-# INLINE sge #-}
 
 ----------------------------------------------------------------------
 --- Indexing
