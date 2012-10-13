@@ -54,6 +54,10 @@ module Data.BitVector
   -- * Conversion
   , fromBits
   , toBits
+  -- Pretty-printing
+  , showBin
+  , showOct
+  , showHex
   -- * Utilities
   , maxNat
   , integerWidth
@@ -592,6 +596,45 @@ fromBits bs = BV n $ snd $ foldr go (1,0) bs
 --
 toBits :: BV -> [Bool]
 toBits (BV n a) = map (testBit a) [n-1,n-2..0]
+
+----------------------------------------------------------------------
+--- Pretty-printing
+
+-- | Show a bit-vector in binary form.
+--
+showBin :: BV -> String
+showBin = ("0b" ++) . map showBit . toBits
+  where showBit True  = '1'
+        showBit False = '0'
+
+hexChar :: Integral a => a -> Char
+hexChar 0 = '0'
+hexChar 1 = '1'
+hexChar 2 = '2'
+hexChar 3 = '3'
+hexChar 4 = '4'
+hexChar 5 = '5'
+hexChar 6 = '6'
+hexChar 7 = '7'
+hexChar 8 = '8'
+hexChar 9 = '9'
+hexChar 10 = 'a'
+hexChar 11 = 'b'
+hexChar 12 = 'c'
+hexChar 13 = 'd'
+hexChar 14 = 'e'
+hexChar 15 = 'f'
+hexChar _  = error "Data.BitVector.hexChar: invalid input"
+
+-- | Show a bit-vector in octal form.
+--
+showOct :: BV -> String
+showOct = ("0o" ++) . map (hexChar . nat) . group_ 3
+
+-- | Show a bit-vector in hexadecimal form.
+--
+showHex :: BV -> String
+showHex = ("0x" ++) . map (hexChar . nat) . group_ 4
 
 ----------------------------------------------------------------------
 --- Utilities
