@@ -236,7 +236,7 @@ u@BV{size=n} `sge` v@BV{size=m} = n == m && int u >= int v
 -- [3]3
 --
 (@@) :: BV -> (Int,Int) -> BV
-(BV _ a) @@ (j,i) = assert (j >= i) $
+(BV _ a) @@ (j,i) = assert (i >= 0 && j >= i) $
     BV m $ (a `shiftR` i) `mod` 2^m
   where m = j - i + 1
 
