@@ -149,7 +149,7 @@ instance Ord BV where
 -- >>> [n]k ==. [m]k
 -- False
 --
--- >>> [n]k == [n]k
+-- >>> [n]k ==. [n]k
 -- True
 --
 (==.) :: BV -> BV -> Bool
