@@ -46,6 +46,7 @@ module Data.BitVector
   , foldl_, foldr_
   , reverse_
   , replicate_
+  , split, group_, join
   -- * Bitwise operations
   , module Data.Bits
   , not_, nand, nor, xnor
@@ -61,6 +62,7 @@ module Data.BitVector
 import Control.Exception ( assert )
 
 import Data.Bits
+import Data.List ( foldl1' )
 import Data.Ord
 
 ----------------------------------------------------------------------
@@ -426,6 +428,44 @@ replicate_ 0 _ = error "Data.BitVector.replicate_: cannot replicate 0-times"
 replicate_ n u = go (n-1) u
   where go 0 !acc = acc
         go k !acc = go (k-1) (u # acc)
+
+-- | Split a bit-vector /k/ times.
+--
+-- >>> split 3 [4]15
+-- [[2]0,[2]3,[2]3]
+--
+split :: Int -> BV -> [BV]
+split k (BV n a) = assert (k > 0) $
+  map (BV s) $ splitInteger s k a
+  where (q,r) = divMod n k
+        s = q + signum r
+
+-- | Split a bit-vector into /n/-wide pieces.
+--
+-- >>> group_ 3 [4]15
+-- [[3]1,[3]7]
+--
+group_ :: Int -> BV -> [BV]
+group_ s (BV n a) = assert (s > 0) $
+  map (BV s) $ splitInteger s k a
+  where (q,r) = divMod n s
+        k = q + signum r
+
+splitInteger :: Int -> Int -> Integer -> [Integer]
+splitInteger n = go []
+  where go acc 0 _ = acc
+        go acc k a = go (v:acc) (k-1) a'
+          where v  = a `mod` 2^n
+                a' = a `shiftR` n
+{-# INLINE splitInteger #-}
+
+-- | Concatenate a list of bit-vectors.
+--
+-- >>> join [[2]3,[2]2]
+-- [4]14
+--
+join :: [BV] -> BV
+join = foldl1' (#)
 
 ----------------------------------------------------------------------
 --- Bitwise operations
