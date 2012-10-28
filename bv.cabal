@@ -10,6 +10,7 @@ License-file:        LICENSE
 Author:              Iago Abal <iago.abal@gmail.com>
 Maintainer:          Iago Abal <iago.abal@gmail.com>
 Copyright:           2012, Iago Abal
+                     2012, University of Minho
 Category:            Data, Bit Vectors
 Build-type:          Simple
 Cabal-version:       >=1.6
