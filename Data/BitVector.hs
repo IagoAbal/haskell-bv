@@ -403,7 +403,7 @@ foldl_ f e (BV n a) = go (n-1) e
 {-# INLINE foldl_ #-}
 
 -- |
--- @foldr_ f z (fromBits [un, ..., u1, u0]) == un `f` (... `f` (u1 \`f\` (u0 \`f\` z)))@
+-- @foldr_ f z (fromBits [un, ..., u1, u0]) == un \`f\` (... \`f\` (u1 \`f\` (u0 \`f\` z)))@
 --
 -- @foldr_ f e = fromBits . foldr f e . toBits@
 --
