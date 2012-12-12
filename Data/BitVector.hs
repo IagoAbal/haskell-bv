@@ -55,6 +55,7 @@ module Data.BitVector
   , (<<.), shl, (>>.), shr, ashr
   , (<<<.), rol, (>>>.), ror
   -- * Conversion
+  , fromBool
   , fromBits
   , toBits
   -- Pretty-printing
@@ -669,6 +670,13 @@ ror = (>>>.)
 
 ----------------------------------------------------------------------
 --- Conversion
+
+-- | Create a bit-vector from a single bit. 
+--
+fromBool :: Bool -> BV
+fromBool False = BV 1 0
+fromBool True  = BV 1 1
+{-# INLINE fromBool #-}
 
 -- | Create a bit-vector from a big-endian list of bits.
 --
