@@ -58,7 +58,7 @@ module Data.BitVector
   , fromBool
   , fromBits
   , toBits
-  -- Pretty-printing
+  -- * Pretty-printing
   , showBin
   , showOct
   , showHex
@@ -97,11 +97,13 @@ type BitVector = BV
 --
 width :: BV -> Int
 width = size
+{-# INLINE width #-}
 
 -- | An alias for 'nat'.
 --
 uint :: BV -> Integer
 uint = nat
+{-# INLINE uint #-}
 
 -- | 2's complement value of a bit-vector.
 int :: BV -> Integer
@@ -142,7 +144,9 @@ instance Data BV where
 bitVec :: Integral a => Int -> a -> BV
 bitVec n a | a >= 0    = BV n $ fromIntegral a
            | otherwise = negate $ BV n $ fromIntegral (-a)
-{-# INLINE bitVec #-}
+{-# RULES "bitVec/Integer" bitVec = BV #-}
+{-# SPECIALIZE bitVec :: Int -> Int -> BV #-}
+{-# INLINE[1] bitVec #-}
 
 -- | Create a mask of ones.
 --
