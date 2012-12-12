@@ -34,7 +34,8 @@ module Data.BitVector
   , (<.), (<=.), (>.), (>=.)
   , slt, sle, sgt, sge
     -- * Indexing
-  , (@.), (@@)
+  , (@.), index
+  , (@@), extract
   , (!.)
   , least, most
   , msb, lsb, msb1
@@ -42,7 +43,7 @@ module Data.BitVector
   , sdiv, srem, smod
   , lg2
   -- * List-like operations
-  , (#)
+  , (#), cat
   , zeroExtend, signExtend
   , foldl_, foldr_
   , reverse_
@@ -51,7 +52,8 @@ module Data.BitVector
   -- * Bitwise operations
   , module Data.Bits
   , not_, nand, nor, xnor
-  , (<<.), (>>.), ashr, (<<<.), (>>>.)
+  , (<<.), shl, (>>.), shr, ashr
+  , (<<<.), rol, (>>>.), ror
   -- * Conversion
   , fromBits
   , toBits
@@ -245,9 +247,17 @@ u@BV{size=n} `sge` v@BV{size=m} = n == m && int u >= int v
 -- >>> [4]2 @. 1
 -- True
 --
-(@.) :: BV -> Int -> Bool
-(BV _ a) @. i = testBit a i
-{-# INLINE (@.) #-}
+(@.) :: Integral ix => BV -> ix -> Bool
+(BV _ a) @. i = testBit a (fromIntegral i)
+{-# SPECIALIZE (@.) :: BV -> Int     -> Bool #-}
+{-# SPECIALIZE (@.) :: BV -> Integer -> Bool #-}
+{-# INLINE[1] (@.) #-}
+
+-- | @index i a == a \@. i@
+--
+index :: Integral ix => ix -> BV -> Bool
+index = flip (@.)
+{-# INLINE index #-}
 
 -- | Bit-string extraction.
 --
@@ -256,10 +266,19 @@ u@BV{size=n} `sge` v@BV{size=m} = n == m && int u >= int v
 -- >>> [4]7 @@ (3,1)
 -- [3]3
 --
-(@@) :: BV -> (Int,Int) -> BV
+(@@) :: Integral ix => BV -> (ix,ix) -> BV
 (BV _ a) @@ (j,i) = assert (i >= 0 && j >= i) $
-    BV m $ (a `shiftR` i) `mod` 2^m
-  where m = j - i + 1
+    BV m $ (a `shiftR` i') `mod` 2^m
+  where i' = fromIntegral i
+        m  = fromIntegral $ j - i + 1
+{-# SPECIALIZE (@@) :: BV -> (Int,Int)         -> BV #-}
+{-# SPECIALIZE (@@) :: BV -> (Integer,Integer) -> BV #-}
+
+-- | @extract j i a == a \@\@ (j,i)@
+--
+extract :: Integral ix => ix -> ix -> BV -> BV
+extract j i = (@@ (j,i))
+{-# INLINE extract #-}
 
 -- | Reverse bit-indexing.
 --
@@ -270,32 +289,41 @@ u@BV{size=n} `sge` v@BV{size=m} = n == m && int u >= int v
 -- >>> [3]3 !. 0
 -- False
 --
-(!.) :: BV -> Int -> Bool
-(BV n a) !. i = assert (i < n) $ testBit a (n-i-1)
-{-# INLINE (!.) #-}
+(!.) :: Integral ix => BV -> ix -> Bool
+(BV n a) !. i = assert (i' < n) $ testBit a (n-i'-1)
+  where i' = fromIntegral i
+{-# SPECIALIZE (!.) :: BV -> Int     -> Bool #-}
+{-# SPECIALIZE (!.) :: BV -> Integer -> Bool #-}
+{-# INLINE[1] (!.) #-}
 
 -- | Take least significant bits.
 --
 -- @least m u == u \@\@ (m-1,0)@
 --
-least :: Int -> BV -> BV
+least :: Integral ix => ix -> BV -> BV
 least m (BV _ a) = assert (m >= 1) $
-  BV m $ a `mod` 2^m
+  BV m' $ a `mod` 2^m
+  where m' = fromIntegral m
+{-# SPECIALIZE least :: Int     -> BV -> BV #-}
+{-# SPECIALIZE least :: Integer -> BV -> BV #-}
 
 -- | Take most significant bits.
 --
 -- @most m u == u \@\@ (n-1,n-m)@
 --
-most :: Int -> BV -> BV
-most m (BV n a) = assert (m >= 1 && m <= n) $
-  BV m $ a `shiftR` (n-m)
+most :: Integral ix => ix -> BV -> BV
+most m (BV n a) = assert (m' >= 1 && m' <= n) $
+  BV m' $ a `shiftR` (n-m')
+  where m' = fromIntegral m
+{-# SPECIALIZE most :: Int     -> BV -> BV #-}
+{-# SPECIALIZE most :: Integer -> BV -> BV #-}
 
 -- | Most significant bit.
 --
 -- @msb u == u !. 0@
 --
 msb :: BV -> Bool
-msb = (!. 0)
+msb = (!. (0::Int))
 {-# INLINE msb #-}
 
 -- | Least significant bit.
@@ -303,7 +331,7 @@ msb = (!. 0)
 -- @lsb u == u \@. 0@
 --
 lsb :: BV -> Bool
-lsb = (@. 0)
+lsb = (@. (0::Int))
 {-# INLINE lsb #-}
 
 -- | Most significant 1-bit.
@@ -390,14 +418,22 @@ lg2 (BV n a) = BV n $ toInteger $ integerWidth (a-1)
 (BV n a) # (BV m b) = BV (n + m) ((a `shiftL` m) + b)
 {-# INLINABLE (#) #-}
 
+-- | An alias for '(#)'.
+--
+cat :: BV -> BV -> BV
+cat = (#)
+
 -- | Logical extension.
 --
 -- >>> zeroExtend 3 [1]1
 -- [4]1
 --
-zeroExtend :: Int -> BV -> BV
-zeroExtend d (BV n a) = BV (n+d) a
-{-# INLINE zeroExtend #-}
+zeroExtend :: Integral size => size -> BV -> BV
+zeroExtend d (BV n a) = BV (n+d') a
+  where d' = fromIntegral d
+{-# SPECIALIZE zeroExtend :: Int     -> BV -> BV #-}
+{-# SPECIALIZE zeroExtend :: Integer -> BV -> BV #-}
+{-# INLINE[1] zeroExtend #-}
 
 -- | Arithmetic extension.
 --
@@ -407,10 +443,14 @@ zeroExtend d (BV n a) = BV (n+d) a
 -- >>> signExtend 2 [2]3
 -- [4]15
 --
-signExtend :: Int -> BV -> BV
+signExtend :: Integral size => size -> BV -> BV
 signExtend d (BV n a)
-  | testBit a (n-1) = BV (n+d) $ (maxNat d `shiftL` n) + a
-  | otherwise       = BV (n+d) a
+  | testBit a (n-1) = BV (n+d') $ (maxNat d `shiftL` n) + a
+  | otherwise       = BV (n+d') a
+  where d' = fromIntegral d
+{-# SPECIALIZE signExtend :: Int     -> BV -> BV #-}
+{-# SPECIALIZE signExtend :: Integer -> BV -> BV #-}
+{-# INLINE[1] signExtend #-}
 
 -- |
 -- @foldl_ f z (fromBits [un, ..., u1, u0]) == ((((z \`f\` un) \`f\` ...) \`f\` u1) \`f\` u0)@
@@ -448,21 +488,24 @@ reverse_ bv@(BV n _) = BV n $ snd $ foldl_ go (1,0) bv
 --
 -- @replicate_ n == fromBits . concat . replicate n . toBits @
 --
-replicate_ :: Int -> BV -> BV
+replicate_ :: Integral size => size -> BV -> BV
 replicate_ 0 _ = error "Data.BitVector.replicate_: cannot replicate 0-times"
 replicate_ n u = go (n-1) u
   where go 0 !acc = acc
         go k !acc = go (k-1) (u # acc)
+{-# SPECIALIZE replicate_ :: Int     -> BV -> BV #-}
+{-# SPECIALIZE replicate_ :: Integer -> BV -> BV #-}
 
 -- | Split a bit-vector /k/ times.
 --
 -- >>> split 3 [4]15
 -- [[2]0,[2]3,[2]3]
 --
-split :: Int -> BV -> [BV]
+split :: Integral times => times -> BV -> [BV]
 split k (BV n a) = assert (k > 0) $
-  map (BV s) $ splitInteger s k a
-  where (q,r) = divMod n k
+  map (BV s) $ splitInteger s k' a
+  where k' = fromIntegral k
+        (q,r) = divMod n k'
         s = q + signum r
 
 -- | Split a bit-vector into /n/-wide pieces.
@@ -470,19 +513,24 @@ split k (BV n a) = assert (k > 0) $
 -- >>> group_ 3 [4]15
 -- [[3]1,[3]7]
 --
-group_ :: Int -> BV -> [BV]
+group_ :: Integral size => size -> BV -> [BV]
 group_ s (BV n a) = assert (s > 0) $
-  map (BV s) $ splitInteger s k a
-  where (q,r) = divMod n s
+  map (BV s') $ splitInteger s' k a
+  where s' = fromIntegral s
+        (q,r) = divMod n s'
         k = q + signum r
 
-splitInteger :: Int -> Int -> Integer -> [Integer]
+splitInteger :: (Integral size, Integral times) => 
+                    size -> times -> Integer -> [Integer]
 splitInteger n = go []
-  where go acc 0 _ = acc
+  where n' = fromIntegral n
+        go acc 0 _ = acc
         go acc k a = go (v:acc) (k-1) a'
           where v  = a `mod` 2^n
-                a' = a `shiftR` n
-{-# INLINE splitInteger #-}
+                a' = a `shiftR` n'
+{-# SPECIALIZE splitInteger :: Int     -> Int     -> Integer -> [Integer] #-}
+{-# SPECIALIZE splitInteger :: Integer -> Integer -> Integer -> [Integer] #-}
+{-# INLINE[1] splitInteger #-}
 
 -- | Concatenate a list of bit-vectors.
 --
@@ -563,6 +611,12 @@ bv@BV{size=n} <<. (BV _ k)
   | otherwise            = bv `shiftL` (fromIntegral k)
 {-# INLINE (<<.) #-}
 
+-- | Left shift.
+--
+shl :: BV -> BV -> BV
+shl = (<<.)
+{-# INLINE shl #-}
+
 -- | Logical right shift.
 --
 (>>.) :: BV -> BV -> BV
@@ -570,6 +624,12 @@ bv@BV{size=n} >>. (BV _ k)
   | k >= fromIntegral n  = BV n 0
   | otherwise            = bv `shiftR` (fromIntegral k)
 {-# INLINE (>>.) #-}
+
+-- | Logical right shift.
+--
+shr :: BV -> BV -> BV
+shr = (>>.)
+{-# INLINE shr #-}
 
 -- | Arithmetic right shift
 --
@@ -586,6 +646,12 @@ bv@BV{size=n} <<<. (BV _ k)
   where n' = fromIntegral n
 {-# INLINE (<<<.) #-}
 
+-- | Rotate left.
+--
+rol :: BV -> BV -> BV
+rol = (<<<.)
+{-# INLINE rol #-}
+
 -- | Rotate right.
 --
 (>>>.) :: BV -> BV -> BV
@@ -594,6 +660,12 @@ bv@BV{size=n} >>>. (BV _ k)
   | otherwise = bv `rotateR` (fromIntegral k)
   where n' = fromIntegral n
 {-# INLINE (>>>.) #-}
+
+-- | Rotate right.
+--
+ror :: BV -> BV -> BV
+ror = (>>>.)
+{-# INLINE ror #-}
 
 ----------------------------------------------------------------------
 --- Conversion
@@ -650,19 +722,19 @@ hexChar _  = error "Data.BitVector.hexChar: invalid input"
 -- | Show a bit-vector in octal form.
 --
 showOct :: BV -> String
-showOct = ("0o" ++) . map (hexChar . nat) . group_ 3
+showOct = ("0o" ++) . map (hexChar . nat) . group_ (3::Int)
 
 -- | Show a bit-vector in hexadecimal form.
 --
 showHex :: BV -> String
-showHex = ("0x" ++) . map (hexChar . nat) . group_ 4
+showHex = ("0x" ++) . map (hexChar . nat) . group_ (4::Int)
 
 ----------------------------------------------------------------------
 --- Utilities
 
 -- | Greatest natural number representable with /n/ bits.
 --
-maxNat :: Integral a => Int -> a
+maxNat :: (Integral a, Integral b) => a -> b
 maxNat n = 2^n - 1
 {-# INLINE maxNat #-}
 
