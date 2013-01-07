@@ -48,6 +48,7 @@ module Data.BitVector
   , foldl_, foldr_
   , reverse_
   , replicate_
+  , and_, or_
   , split, group_, join
   -- * Bitwise operations
   , module Data.Bits
@@ -500,6 +501,22 @@ replicate_ n u = go (n-1) u
         go k !acc = go (k-1) (u # acc)
 {-# SPECIALIZE replicate_ :: Int     -> BV -> BV #-}
 {-# SPECIALIZE replicate_ :: Integer -> BV -> BV #-}
+
+-- | Conjunction.
+--
+and_ :: [BV] -> BV
+and_ [] = error "Data.BitVector.and_: empty list"
+and_ ws = BV n' $ foldl1' (.&.) $ map nat ws
+  where n' = maximum $ map size ws
+{-# INLINE and_ #-}
+
+-- | Disjunction.
+--
+or_ :: [BV] -> BV
+or_ [] = error "Data.BitVector.or_: empty list"
+or_ ws = BV n' $ foldl1' (.|.) $ map nat ws
+  where n' = maximum $ map size ws
+{-# INLINE or_ #-}
 
 -- | Split a bit-vector /k/ times.
 --
