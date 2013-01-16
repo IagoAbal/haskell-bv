@@ -4,7 +4,7 @@
 
 -- |
 -- Module    : Data.BitVector
--- Copyright : (c) Iago Abal, 2012
+-- Copyright : (c) Iago Abal, 2012-2013
 --             (c) University of Minho, 2012
 -- License   : BSD3
 -- Maintainer: Iago Abal <iago.abal@gmail.com>
