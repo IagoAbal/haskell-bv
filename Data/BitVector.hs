@@ -19,7 +19,7 @@
 --
 -- For documentation purposes we will write @[n]k@ to denote a bit-vector
 -- of size @n@ representing the natural number @k@.
-module Data.BitVector 
+module Data.BitVector
   ( -- * Bit-vectors
     BitVector
   , BV
@@ -73,9 +73,9 @@ import Data.Bits
 import Data.List ( foldl1' )
 import Data.Ord
 import Data.Typeable ( Typeable(..), mkTyConApp, mkTyCon3 )
-import Data.Data 
+import Data.Data
   ( Data(..), Fixity(Prefix)
-  , constrIndex, indexConstr, mkDataType, mkConstr 
+  , constrIndex, indexConstr, mkDataType, mkConstr
   )
 
 ----------------------------------------------------------------------
@@ -108,7 +108,7 @@ int u | msb u     = - nat(-u)
 
 instance Show BV where
   show (BV n a) = "[" ++ show n ++ "]" ++ show a
- 
+
 instance Typeable BV where
   typeOf _ = mkTyConApp bvTyCon []
     where bvTyCon = mkTyCon3 "bv" "Data.BitVector" "BV"
@@ -121,7 +121,7 @@ instance Data BV where
           i -> error $ "Data.gunfold for BV, unknown index: " ++ show i
   toConstr x@BV{} = indexConstr (dataTypeOf x) 1
   dataTypeOf _ = ty
-    where ty = mkDataType "Data.BitVector.BV" 
+    where ty = mkDataType "Data.BitVector.BV"
                   [mkConstr ty "BV" ["size", "nat"] Prefix]
 
 ----------------------------------------------------------------------
@@ -501,7 +501,7 @@ group_ s (BV n a) = assert (s > 0) $
         (q,r) = divMod n s'
         k = q + signum r
 
-splitInteger :: (Integral size, Integral times) => 
+splitInteger :: (Integral size, Integral times) =>
                     size -> times -> Integer -> [Integer]
 splitInteger n = go []
   where n' = fromIntegral n
@@ -530,7 +530,7 @@ instance Bits BV where
     where n = max n1 n2
   (BV n1 a) `xor` (BV n2 b) = BV n $ a `xor` b
     where n = max n1 n2
-  complement (BV n a) = BV n $ 2^n - 1 - a 
+  complement (BV n a) = BV n $ 2^n - 1 - a
   bit i = BV (i+1) (2^i)
   testBit (BV n a) i | i < n     = testBit a i
                      | otherwise = False

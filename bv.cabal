@@ -21,6 +21,6 @@ source-repository head
 
 Library
   Exposed-modules:     Data.BitVector
-  -- Other-modules:       
+  -- Other-modules:
   ghc-options:         -Wall
   Build-depends:       base >=4 && <5
