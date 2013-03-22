@@ -139,7 +139,7 @@ instance Data BV where
 bitVec :: Integral a => Int -> a -> BV
 bitVec n a | a >= 0    = BV n $ fromIntegral a
            | otherwise = negate $ BV n $ fromIntegral (-a)
-{-# RULES "bitVec/Integer" bitVec = BV #-}
+{-# SPECIALIZE bitVec :: Int -> Integer -> BV #-}
 {-# SPECIALIZE bitVec :: Int -> Int -> BV #-}
 {-# INLINE[1] bitVec #-}
 
