@@ -18,8 +18,25 @@ source-repository head
   type:     mercurial
   location: https://bitbucket.org/iago/bv-haskell
 
+Flag test
+     Description: Build the test suite, including an executable to run it.
+     Default: False
+
 Library
   Exposed-modules:     Data.BitVector
   -- Other-modules:
   ghc-options:         -Wall
   Build-depends:       base >=4.4 && <5
+
+Executable bv-tester
+  if flag(test)
+    Buildable:           True
+    Build-depends:       base >=4.4 && <5,
+                         QuickCheck >=2.4 && < 2.7,
+                         test-framework-quickcheck2 ==0.3.*,
+                         test-framework-th ==0.2.*
+  else
+    Buildable:           False
+
+  Main-Is:             Properties.hs
+  ghc-options:         -Wall
