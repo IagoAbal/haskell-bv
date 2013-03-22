@@ -156,6 +156,9 @@ zeros n = BV n 0
 ----------------------------------------------------------------------
 --- Comparison
 
+infix 4 ==., /=., <., <=., >., >=.
+infix 4 `slt`, `sle`, `sgt`, `sge`
+
 instance Eq BV where
   (BV _ a) == (BV _ b) = a == b
 
@@ -224,6 +227,8 @@ u@BV{size=n} `sge` v@BV{size=m} = n == m && int u >= int v
 
 ----------------------------------------------------------------------
 --- Indexing
+
+infixl 9 @., @@, !.
 
 -- | Bit indexing.
 --
@@ -386,6 +391,8 @@ lg2 (BV n a) = BV n $ toInteger $ integerWidth (a-1)
 ----------------------------------------------------------------------
 --- List-like operations
 
+infixr 5 #
+
 -- | Concatenation of two bit-vectors.
 (#), cat :: BV -> BV -> BV
 (BV n a) # (BV m b) = BV (n + m) ((a `shiftL` m) + b)
@@ -522,6 +529,8 @@ join = foldl1' (#)
 
 ----------------------------------------------------------------------
 --- Bitwise operations
+
+infixl 8 <<., `shl`, >>., `shr`, `ashr`, <<<., `rol`, >>>., `ror`
 
 instance Bits BV where
   (BV n1 a) .&. (BV n2 b) = BV n $ a .&. b
