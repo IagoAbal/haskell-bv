@@ -344,7 +344,7 @@ instance Num BV where
   negate (BV n a) = BV n $ 2^n - a
   abs u | msb u     = negate u
         | otherwise = u
-  signum u = bitVec 2 $ int u
+  signum u = bitVec 2 $ signum $ int u
   fromInteger i = bitVec (integerWidth i) i
 
 instance Real BV where
