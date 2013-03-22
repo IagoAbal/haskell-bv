@@ -28,6 +28,9 @@ module Data.BitVector
     -- * Creation
   , bitVec
   , ones, zeros
+    -- * Test
+  , isNat
+  , isPos
     -- * Comparison
   , (==.), (/=.)
   , (<.), (<=.), (>.), (>=.)
@@ -39,6 +42,7 @@ module Data.BitVector
   , least, most
   , msb, lsb, msb1
   -- * Arithmetic
+  , signumI
   , sdiv, srem, smod
   , lg2
   -- * List-like operations
@@ -152,6 +156,15 @@ ones n = BV n $ 2^n - 1
 zeros :: Int -> BV
 zeros n = BV n 0
 {-# INLINE zeros #-}
+
+----------------------------------------------------------------------
+--- Test
+
+isNat :: BV -> Bool
+isNat a = signumI(a) >= (0::Integer)
+
+isPos :: BV -> Bool
+isPos a = signumI(a) > (0::Integer)
 
 ----------------------------------------------------------------------
 --- Comparison
@@ -346,6 +359,9 @@ instance Num BV where
         | otherwise = u
   signum u = bitVec 2 $ signum $ int u
   fromInteger i = bitVec (integerWidth i) i
+
+signumI :: Integral a => BV -> a
+signumI = fromInteger . signum . int
 
 instance Real BV where
   toRational = toRational . nat
