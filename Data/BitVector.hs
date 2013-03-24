@@ -161,11 +161,13 @@ zeros n = BV n 0
 
 -- | Test if the signed value of a bit-vector is a natural number.
 isNat :: BV -> Bool
-isNat a = int(a) >= 0
+isNat = not . msb
+{-# INLINE isNat #-}
 
 -- | Test if the signed value of a bit-vector is a positive number.
 isPos :: BV -> Bool
 isPos a = int(a) > 0
+{-# INLINE isPos #-}
 
 ----------------------------------------------------------------------
 --- Comparison
