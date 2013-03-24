@@ -26,6 +26,8 @@ import Test.QuickCheck.Gen
 main :: IO ()
 main = $(defaultMainGenerator)
 
+-- * Generators
+
 c_MAX_SIZE :: Int
 c_MAX_SIZE = 8192
 

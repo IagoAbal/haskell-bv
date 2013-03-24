@@ -159,11 +159,13 @@ zeros n = BV n 0
 ----------------------------------------------------------------------
 --- Test
 
+-- | Test if the signed value of a bit-vector is a natural number.
 isNat :: BV -> Bool
-isNat a = signumI(a) >= (0::Integer)
+isNat a = int(a) >= 0
 
+-- | Test if the signed value of a bit-vector is a positive number.
 isPos :: BV -> Bool
-isPos a = signumI(a) > (0::Integer)
+isPos a = int(a) > 0
 
 ----------------------------------------------------------------------
 --- Comparison
@@ -359,6 +361,7 @@ instance Num BV where
   signum u = bitVec 2 $ signum $ int u
   fromInteger i = bitVec (integerWidth i) i
 
+-- | Bit-vector 'signum' as an 'Integral'.
 signumI :: Integral a => BV -> a
 signumI = fromInteger . signum . int
 
