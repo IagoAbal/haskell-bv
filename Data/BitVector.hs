@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -funbox-strict-fields #-}
 
 {-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 
 -- |
 -- Module    : Data.BitVector
@@ -90,6 +91,7 @@ data BV
       size :: !Int      -- ^ The /size/ of a bit-vector.
     , nat  :: !Integer  -- ^ The value of a bit-vector, as a natural number.
     }
+  deriving (Data,Typeable)
 
 -- | An alias for 'BV'.
 type BitVector = BV
@@ -111,21 +113,6 @@ int u | msb u     = - nat(-u)
 
 instance Show BV where
   show (BV n a) = "[" ++ show n ++ "]" ++ show a
-
-instance Typeable BV where
-  typeOf _ = mkTyConApp bvTyCon []
-    where bvTyCon = mkTyCon3 "bv" "Data.BitVector" "BV"
-
-instance Data BV where
-  gfoldl k r (BV x1 x2) = r BV `k` x1 `k` x2
-  gunfold k z c
-    = case constrIndex c - 1 of
-          0 -> k $ k $ z BV
-          i -> error $ "Data.gunfold for BV, unknown index: " ++ show i
-  toConstr x@BV{} = indexConstr (dataTypeOf x) 1
-  dataTypeOf _ = ty
-    where ty = mkDataType "Data.BitVector.BV"
-                  [mkConstr ty "BV" ["size", "nat"] Prefix]
 
 ----------------------------------------------------------------------
 --- Construction
