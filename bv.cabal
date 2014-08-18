@@ -21,6 +21,7 @@ source-repository head
 Flag test
      Description: Build the test suite, including an executable to run it.
      Default: False
+     Manual: True
 
 Library
   Exposed-modules:     Data.BitVector
