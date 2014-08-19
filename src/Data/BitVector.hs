@@ -126,9 +126,7 @@ instance Show BV where
 bitVec :: Integral a => Int -> a -> BV
 bitVec n a | a >= 0    = BV n $ fromIntegral a
            | otherwise = negate $ BV n $ fromIntegral (-a)
-{-# SPECIALIZE bitVec :: Int -> Integer -> BV #-}
-{-# SPECIALIZE bitVec :: Int -> Int -> BV #-}
-{-# INLINE[1] bitVec #-}
+{-# INLINE bitVec #-}
 
 -- | Create a mask of ones.
 ones :: Int -> BV
@@ -241,9 +239,7 @@ infixl 9 @., @@, !.
 -- True
 (@.) :: Integral ix => BV -> ix -> Bool
 (BV _ a) @. i = testBit a (fromIntegral i)
-{-# SPECIALIZE (@.) :: BV -> Int     -> Bool #-}
-{-# SPECIALIZE (@.) :: BV -> Integer -> Bool #-}
-{-# INLINE[1] (@.) #-}
+{-# INLINE (@.) #-}
 
 -- | @index i a == a \@. i@
 index :: Integral ix => ix -> BV -> Bool
@@ -280,9 +276,7 @@ extract j i = (@@ (j,i))
 (!.) :: Integral ix => BV -> ix -> Bool
 (BV n a) !. i = assert (i' < n) $ testBit a (n-i'-1)
   where i' = fromIntegral i
-{-# SPECIALIZE (!.) :: BV -> Int     -> Bool #-}
-{-# SPECIALIZE (!.) :: BV -> Integer -> Bool #-}
-{-# INLINE[1] (!.) #-}
+{-# INLINE (!.) #-}
 
 -- | Take least significant bits.
 --
@@ -427,9 +421,7 @@ cat = (#)
 zeroExtend :: Integral size => size -> BV -> BV
 zeroExtend d (BV n a) = BV (n+d') a
   where d' = fromIntegral d
-{-# SPECIALIZE zeroExtend :: Int     -> BV -> BV #-}
-{-# SPECIALIZE zeroExtend :: Integer -> BV -> BV #-}
-{-# INLINE[1] zeroExtend #-}
+{-# INLINE zeroExtend #-}
 
 -- | Arithmetic extension.
 --
@@ -443,9 +435,7 @@ signExtend d (BV n a)
   | testBit a (n-1) = BV (n+d') $ (maxNat d `shiftL` n) + a
   | otherwise       = BV (n+d') a
   where d' = fromIntegral d
-{-# SPECIALIZE signExtend :: Int     -> BV -> BV #-}
-{-# SPECIALIZE signExtend :: Integer -> BV -> BV #-}
-{-# INLINE[1] signExtend #-}
+{-# INLINE signExtend #-}
 
 -- |
 -- @foldl_ f z (fromBits [un, ..., u1, u0]) == ((((z \`f\` un) \`f\` ...) \`f\` u1) \`f\` u0)@
@@ -535,9 +525,7 @@ splitInteger n = go []
         go acc k a = go (v:acc) (k-1) a'
           where v  = a `mod` 2^n
                 a' = a `shiftR` n'
-{-# SPECIALIZE splitInteger :: Int     -> Int     -> Integer -> [Integer] #-}
-{-# SPECIALIZE splitInteger :: Integer -> Integer -> Integer -> [Integer] #-}
-{-# INLINE[1] splitInteger #-}
+{-# INLINE splitInteger #-}
 
 -- | Concatenate a list of bit-vectors.
 --
