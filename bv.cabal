@@ -26,6 +26,7 @@ Flag test
 Library
   Exposed-modules:     Data.BitVector
   -- Other-modules:
+  Hs-Source-Dirs:      src
   ghc-options:         -Wall
   Build-depends:       base >=4.4 && <5
 
@@ -40,4 +41,5 @@ Executable bv-tester
     Buildable:           False
 
   Main-Is:             Properties.hs
+  Hs-Source-Dirs:      src, test
   ghc-options:         -Wall
