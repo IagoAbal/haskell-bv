@@ -76,11 +76,8 @@ import Control.Exception ( assert )
 import Data.Bits
 import Data.List ( foldl1' )
 import Data.Ord
-import Data.Typeable ( Typeable(..), mkTyConApp, mkTyCon3 )
-import Data.Data
-  ( Data(..), Fixity(Prefix)
-  , constrIndex, indexConstr, mkDataType, mkConstr
-  )
+import Data.Typeable ( Typeable )
+import Data.Data ( Data )
 
 ----------------------------------------------------------------------
 --- Bit-vectors
