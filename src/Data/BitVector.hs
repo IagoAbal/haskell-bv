@@ -5,9 +5,10 @@
 
 -- |
 -- Module    : Data.BitVector
--- Copyright : (c) 2012-2013 Iago Abal, HASLab & University of Minho
+-- Copyright : (c) 2012-2014 Iago Abal
+--             (c) 2012-2013 HASLab & University of Minho
 -- License   : BSD3
--- Maintainer: Iago Abal <iago.abal@gmail.com>
+-- Maintainer: Iago Abal <mail@iagoabal.eu>
 --
 -- Implementation of bit-vectors as wrappers over 'Integer'.
 --
