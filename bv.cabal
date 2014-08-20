@@ -1,6 +1,6 @@
 
 Name:                bv
-Version:             0.2.2
+Version:             0.3.0
 Synopsis:            Bit-vector arithmetic library
 Description:         Bit-vectors implemented as a wrapper over integers.
 Homepage:            http://bitbucket.org/iago/bv-haskell
