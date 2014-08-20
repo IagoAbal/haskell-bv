@@ -575,6 +575,7 @@ instance Bits BV where
     where s = n - k
           l = a `shiftR` k
           h = (a `shiftL` s) `mod` 2^n
+  popCount (BV _ a) = assert (a >= 0) $ popCount a
 
 -- | An alias for 'complement'.
 not_ :: BV -> BV

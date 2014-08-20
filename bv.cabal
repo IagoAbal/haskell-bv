@@ -28,12 +28,12 @@ Library
   -- Other-modules:
   Hs-Source-Dirs:      src
   ghc-options:         -Wall
-  Build-depends:       base >=4.4 && <5
+  Build-depends:       base >=4.5 && <5
 
 Executable bv-tester
   if flag(test)
     Buildable:           True
-    Build-depends:       base >=4.4 && <5,
+    Build-depends:       base >=4.5 && <5,
                          QuickCheck >=2.4 && < 2.7,
                          test-framework-quickcheck2 ==0.3.*,
                          test-framework-th ==0.2.*
