@@ -338,7 +338,7 @@ msb1 (BV n a) = go (n-1)
 -- 1
 lsb1 :: BV -> Int
 lsb1 (BV _ 0) = error "Data.BitVector.lsb1: zero bit-vector"
-lsb1 (BV n a) = go 0
+lsb1 (BV _ a) = go 0
   where go i | testBit a i = i
              | otherwise   = go (i+1)
 
