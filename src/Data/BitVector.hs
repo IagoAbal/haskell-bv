@@ -108,6 +108,7 @@ uint = nat
 int :: BV -> Integer
 int u | msb u     = - nat(-u)
       | otherwise = nat u
+{-# INLINE int #-}
 
 instance Show BV where
   show (BV n a) = "[" ++ show n ++ "]" ++ show a
@@ -176,6 +177,7 @@ instance Ord BV where
 -- True
 (==.) :: BV -> BV -> Bool
 (BV n a) ==. (BV m b) = n == m && a == b
+{-# INLINE (==.) #-}
 
 -- | Fixed-size inequality.
 --
@@ -258,8 +260,7 @@ index = flip (@.)
     BV m $ (a `shiftR` i') `mod` 2^m
   where i' = fromIntegral i
         m  = fromIntegral $ j - i + 1
-{-# SPECIALIZE (@@) :: BV -> (Int,Int)         -> BV #-}
-{-# SPECIALIZE (@@) :: BV -> (Integer,Integer) -> BV #-}
+{-# INLINE (@@) #-}
 
 -- | @extract j i a == a \@\@ (j,i)@
 extract :: Integral ix => ix -> ix -> BV -> BV
@@ -286,8 +287,7 @@ least :: Integral ix => ix -> BV -> BV
 least m (BV _ a) = assert (m >= 1) $
   BV m' $ a `mod` 2^m
   where m' = fromIntegral m
-{-# SPECIALIZE least :: Int     -> BV -> BV #-}
-{-# SPECIALIZE least :: Integer -> BV -> BV #-}
+{-# INLINE least #-}
 
 -- | Take most significant bits.
 --
@@ -296,8 +296,7 @@ most :: Integral ix => ix -> BV -> BV
 most m (BV n a) = assert (m' >= 1 && m' <= n) $
   BV m' $ a `shiftR` (n-m')
   where m' = fromIntegral m
-{-# SPECIALIZE most :: Int     -> BV -> BV #-}
-{-# SPECIALIZE most :: Integer -> BV -> BV #-}
+{-# INLINE most #-}
 
 -- | Most significant bit.
 --
@@ -381,18 +380,21 @@ sdiv :: BV -> BV -> BV
 sdiv u@(BV n1 _) v@(BV n2 _) = bitVec n q
   where n = max n1 n2
         q = int u `quot` int v
+{-# INLINE sdiv #-}
 
 -- | 2's complement signed remainder (sign follows dividend).
 srem :: BV -> BV -> BV
 srem u@(BV n1 _) v@(BV n2 _) = bitVec n r
   where n = max n1 n2
         r = int u `rem` int v
+{-# INLINE srem #-}
 
 -- | 2's complement signed remainder (sign follows divisor).
 smod :: BV -> BV -> BV
 smod u@(BV n1 _) v@(BV n2 _) = bitVec n r
   where n = max n1 n2
         r = int u `mod` int v
+{-# INLINE smod #-}
 
 -- | Ceiling logarithm base 2.
 --
@@ -401,6 +403,7 @@ lg2 :: BV -> BV
 lg2 (BV _ 0) = error "Data.BitVector.lg2: zero bit-vector"
 lg2 (BV n 1) = BV n 0
 lg2 (BV n a) = BV n $ toInteger $ integerWidth (a-1)
+{-# INLINE lg2 #-}
 
 ----------------------------------------------------------------------
 --- List-like operations
@@ -410,7 +413,7 @@ infixr 5 #
 -- | Concatenation of two bit-vectors.
 (#), cat :: BV -> BV -> BV
 (BV n a) # (BV m b) = BV (n + m) ((a `shiftL` m) + b)
-{-# INLINABLE (#) #-}
+{-# INLINE (#) #-}
 
 cat = (#)
 {-# INLINE cat #-}
@@ -465,6 +468,7 @@ reverse_ bv@(BV n _) = BV n $ snd $ foldl_ go (1,0) bv
   where go (v,acc) b | b         = (v',acc+v)
                      | otherwise = (v',acc)
           where v' = 2*v
+{-# INLINE reverse_ #-}
 
 -- |
 -- /Pre/: if @replicate_ n u@ then @n > 0@ must hold.
@@ -475,8 +479,7 @@ replicate_ 0 _ = error "Data.BitVector.replicate_: cannot replicate 0-times"
 replicate_ n u = go (n-1) u
   where go 0 !acc = acc
         go k !acc = go (k-1) (u # acc)
-{-# SPECIALIZE replicate_ :: Int     -> BV -> BV #-}
-{-# SPECIALIZE replicate_ :: Integer -> BV -> BV #-}
+{-# INLINE replicate_ #-}
 
 -- | Conjunction.
 --
@@ -506,6 +509,7 @@ split k (BV n a) = assert (k > 0) $
   where k' = fromIntegral k
         (q,r) = divMod n k'
         s = q + signum r
+{-# INLINE split #-}
 
 -- | Split a bit-vector into /n/-wide pieces.
 --
@@ -517,6 +521,7 @@ group_ s (BV n a) = assert (s > 0) $
   where s' = fromIntegral s
         (q,r) = divMod n s'
         k = q + signum r
+{-# INLINE group_ #-}
 
 splitInteger :: (Integral size, Integral times) =>
                     size -> times -> Integer -> [Integer]
@@ -534,6 +539,7 @@ splitInteger n = go []
 -- [4]14
 join :: [BV] -> BV
 join = foldl1' (#)
+{-# INLINE join #-}
 
 ----------------------------------------------------------------------
 --- Bitwise operations
@@ -665,6 +671,7 @@ fromBits bs = BV n $ snd $ foldr go (1,0) bs
         go b (!v,!acc) | b         = (v',acc+v)
                        | otherwise = (v',acc)
           where v' = 2*v
+{-# INLINE fromBits #-}
 
 -- | Create a big-endian list of bits from a bit-vector.
 --
@@ -672,6 +679,7 @@ fromBits bs = BV n $ snd $ foldr go (1,0) bs
 -- [True, False, True, True]
 toBits :: BV -> [Bool]
 toBits (BV n a) = map (testBit a) [n-1,n-2..0]
+{-# INLINE toBits #-}
 
 ----------------------------------------------------------------------
 --- Pretty-printing
