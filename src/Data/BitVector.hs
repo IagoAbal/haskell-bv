@@ -570,6 +570,7 @@ instance Bits BV where
   testBit (BV n a) i | i < n     = testBit a i
                      | otherwise = False
   bitSize = undefined
+  bitSizeMaybe = const Nothing
   isSigned = const False
   shiftL (BV n a) k
     | k > n     = BV n 0
