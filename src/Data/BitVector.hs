@@ -10,13 +10,18 @@
 -- License   : BSD3
 -- Maintainer: Iago Abal <mail@iagoabal.eu>
 --
--- Implementation of bit-vectors as wrappers over 'Integer'.
+-- Bit-vector arithmetic inspired by SMT-LIB <http://smt-lib.org/>
+-- and Cryptol <http://cryptol.net/>.
+--
+-- Bit-vectors are represented as a pair /size/ and /value/,
+-- where sizes are of type 'Int' and values are 'Integer'.
 --
 -- * Bit-vectors are interpreted as unsigned integers
---   (i.e. natural numbers) except for some very specific cases.
+--   (i.e. natural numbers) except for some specific /signed/ operations.
 --
 -- * Bit-vectors are /size-polymorphic/ insofar as most operations treat
 --   a bit-vector of size /n/ as of size /m/ for /m >= n/ if required.
+--   In other words, the size of a bit-vector is /elastic/ and auto-adjusted.
 --
 -- For documentation purposes we will write @[n]k@ to denote a bit-vector
 -- of size @n@ representing the natural number @k@.
@@ -75,10 +80,10 @@ module Data.BitVector
 import Control.Exception ( assert )
 
 import Data.Bits
+import Data.Data ( Data )
 import Data.List ( foldl1' )
 import Data.Ord
 import Data.Typeable ( Typeable )
-import Data.Data ( Data )
 
 ----------------------------------------------------------------------
 --- Bit-vectors
@@ -105,6 +110,12 @@ uint = nat
 {-# INLINE uint #-}
 
 -- | 2's complement value of a bit-vector.
+--
+-- >>> int [2]3
+-- -1
+--
+-- >>> int [4]12
+-- -4
 int :: BV -> Integer
 int u | msb u     = - nat(-u)
       | otherwise = nat u
@@ -126,7 +137,8 @@ instance Show BV where
 -- >>> bitVec 4 (-1)
 -- [4]15
 bitVec :: Integral a => Int -> a -> BV
-bitVec n a | a >= 0    = BV n $ fromIntegral a
+bitVec n a | n < 0     = error "bitVec: negative size"
+           | a >= 0    = BV n $ fromIntegral a
            | otherwise = negate $ BV n $ fromIntegral (-a)
 {-# INLINE bitVec #-}
 
