@@ -54,14 +54,19 @@ module Data.BitVector
   -- * List-like operations
   , (#), cat
   , zeroExtend, signExtend
-  , foldl_, foldr_
-  , reverse_
-  , replicate_
-  , and_, or_
-  , split, group_, join
+  , foldl, foldl_
+  , foldr, foldr_
+  , reverse, reverse_
+  , replicate, replicate_
+  , and, and_
+  , or, or_
+  , split
+  , group, group_
+  , join
   -- * Bitwise operations
   , module Data.Bits
-  , not_, nand, nor, xnor
+  , not, not_
+  , nand, nor, xnor
   , (<<.), shl, (>>.), shr, ashr
   , (<<<.), rol, (>>>.), ror
   -- * Conversion
@@ -77,13 +82,39 @@ module Data.BitVector
   , integerWidth
   ) where
 
-import Control.Exception ( assert )
+import           Control.Exception ( assert )
 
-import Data.Bits
-import Data.Data ( Data )
-import Data.List ( foldl1' )
-import Data.Ord
-import Data.Typeable ( Typeable )
+import           Data.Bits
+import           Data.Bool ( Bool(..), otherwise, (&&))
+import qualified Data.Bool as Bool
+import           Data.Data ( Data )
+import qualified Data.List as List
+  ( foldr, foldl1'
+  , length
+  , map
+  , maximum
+  )
+import           Data.Ord
+import           Data.Typeable ( Typeable )
+
+import           Prelude
+  ( Char
+  , Eq(..)
+  , Enum(..), Num(..)
+  , Integral(..), Int, Integer
+  , Maybe(..)
+  , Real(..)
+  , Show(..), String
+  , const
+  , error
+  , flip, fromIntegral
+  , maxBound
+  , snd
+  , undefined
+  , ($), (.), (^), (++)
+  )
+
+{-# DEPRECATED foldl_, foldr_, reverse_, replicate_, and_, or_, group_, not_ "Use corresponding versions without underscore" #-}
 
 ----------------------------------------------------------------------
 --- Bit-vectors
@@ -159,7 +190,7 @@ zeros n | n < 0     = error "Data.BitVector.zeros: negative size"
 
 -- | Test if the signed value of a bit-vector is a natural number.
 isNat :: BV -> Bool
-isNat = not . msb
+isNat = Bool.not . msb
 {-# INLINE isNat #-}
 
 -- | Test if the signed value of a bit-vector is a positive number.
@@ -197,7 +228,7 @@ instance Ord BV where
 --
 -- The negated version of '==.'.
 (/=.) :: BV -> BV -> Bool
-u /=. v = not $ u ==. v
+u /=. v = Bool.not $ u ==. v
 {-# INLINE (/=.) #-}
 
 -- | Fixed-size /less-than/.
@@ -460,53 +491,58 @@ signExtend d (BV n a)
 {-# INLINE signExtend #-}
 
 -- |
--- @foldl_ f z (fromBits [un, ..., u1, u0]) == ((((z \`f\` un) \`f\` ...) \`f\` u1) \`f\` u0)@
+-- @foldl f z (fromBits [un, ..., u1, u0]) == ((((z \`f\` un) \`f\` ...) \`f\` u1) \`f\` u0)@
 --
--- @foldl_ f e = fromBits . foldl f e . toBits@
-foldl_ :: (a -> Bool -> a) -> a -> BV -> a
-foldl_ f e (BV n a) = go (n-1) e
+-- @foldl f e = fromBits . foldl f e . toBits@
+foldl, foldl_ :: (a -> Bool -> a) -> a -> BV -> a
+foldl f e (BV n a) = go (n-1) e
   where go i !x | i >= 0    = let !b = testBit a i in go (i-1) $ f x b
                 | otherwise = x
-{-# INLINE foldl_ #-}
+foldl_ = foldl
+{-# INLINE foldl #-}
 
 -- |
--- @foldr_ f z (fromBits [un, ..., u1, u0]) == un \`f\` (... \`f\` (u1 \`f\` (u0 \`f\` z)))@
+-- @foldr f z (fromBits [un, ..., u1, u0]) == un \`f\` (... \`f\` (u1 \`f\` (u0 \`f\` z)))@
 --
--- @foldr_ f e = fromBits . foldr f e . toBits@
-foldr_ :: (Bool -> a -> a) -> a -> BV -> a
-foldr_ f e (BV n a) = go (n-1) e
+-- @foldr f e = fromBits . foldr f e . toBits@
+foldr, foldr_ :: (Bool -> a -> a) -> a -> BV -> a
+foldr f e (BV n a) = go (n-1) e
  where go i !x | i >= 0    = let !b = testBit a i in f b (go (i-1) x)
                | otherwise = x
-{-# INLINE foldr_ #-}
+foldr_ = foldr
+{-# INLINE foldr #-}
 
 -- |
--- @reverse_ == fromBits . reverse . toBits@
-reverse_ :: BV -> BV
-reverse_ bv@(BV n _) = BV n $ snd $ foldl_ go (1,0) bv
+-- @reverse == fromBits . reverse . toBits@
+reverse, reverse_ :: BV -> BV
+reverse bv@(BV n _) = BV n $ snd $ foldl go (1,0) bv
   where go (v,acc) b | b         = (v',acc+v)
                      | otherwise = (v',acc)
           where v' = 2*v
-{-# INLINE reverse_ #-}
+reverse_ = reverse
+{-# INLINE reverse #-}
 
 -- |
 -- /Pre/: if @replicate_ n u@ then @n > 0@ must hold.
 --
 -- @replicate_ n == fromBits . concat . replicate n . toBits @
-replicate_ :: Integral size => size -> BV -> BV
-replicate_ 0 _ = error "Data.BitVector.replicate_: cannot replicate 0-times"
-replicate_ n u = go (n-1) u
+replicate, replicate_ :: Integral size => size -> BV -> BV
+replicate 0 _ = error "Data.BitVector.replicate: cannot replicate 0-times"
+replicate n u = go (n-1) u
   where go 0 !acc = acc
         go k !acc = go (k-1) (u # acc)
-{-# INLINE replicate_ #-}
+replicate_ = replicate
+{-# INLINE replicate #-}
 
 -- | Conjunction.
 --
--- @and_ == foldr1 (.&.)@
-and_ :: [BV] -> BV
-and_ [] = error "Data.BitVector.and_: empty list"
-and_ ws = BV n' $ foldl1' (.&.) $ map nat ws
-  where n' = maximum $ map size ws
-{-# INLINE and_ #-}
+-- @and == foldr1 (.&.)@
+and, and_ :: [BV] -> BV
+and [] = error "Data.BitVector.and: empty list"
+and ws = BV n' $ List.foldl1' (.&.) $ List.map nat ws
+  where n' = List.maximum $ List.map size ws
+and_ = and
+{-# INLINE and #-}
 
 -- | Disjunction.
 --
@@ -532,15 +568,16 @@ split k (BV n a) | k > 0     = List.map (BV s) $ splitInteger s k' a
 
 -- | Split a bit-vector into /n/-wide pieces.
 --
--- >>> group_ 3 [4]15
+-- >>> group 3 [4]15
 -- [[3]1,[3]7]
-group_ :: Integral size => size -> BV -> [BV]
-group_ s (BV n a) = assert (s > 0) $
-  map (BV s') $ splitInteger s' k a
+group, group_ :: Integral size => size -> BV -> [BV]
+group s (BV n a) | s > 0     = List.map (BV s') $ splitInteger s' k a
+                 | otherwise = error "Data.BitVector.group: non-positive size"
   where s' = fromIntegral s
         (q,r) = divMod n s'
         k = q + signum r
-{-# INLINE group_ #-}
+group_ = group
+{-# INLINE group #-}
 
 splitInteger :: (Integral size, Integral times) =>
                     size -> times -> Integer -> [Integer]
@@ -557,7 +594,7 @@ splitInteger n = go []
 -- >>> join [[2]3,[2]2]
 -- [4]14
 join :: [BV] -> BV
-join = foldl1' (#)
+join = List.foldl1' (#)
 {-# INLINE join #-}
 
 ----------------------------------------------------------------------
@@ -604,23 +641,24 @@ instance Bits BV where
   popCount (BV _ a) = assert (a >= 0) $ popCount a
 
 -- | An alias for 'complement'.
-not_ :: BV -> BV
-not_ = complement
-{-# INLINE not_ #-}
+not, not_ :: BV -> BV
+not = complement
+not_ = not
+{-# INLINE not #-}
 
 -- | Negated '.&.'.
 nand :: BV -> BV -> BV
-nand u v = not_ $ u .&. v
+nand u v = not $ u .&. v
 {-# INLINE nand #-}
 
 -- | Negated '.|.'.
 nor :: BV -> BV -> BV
-nor u v = not_ $ u .|. v
+nor u v = not $ u .|. v
 {-# INLINE nor #-}
 
 -- | Negated 'xor'.
 xnor :: BV -> BV -> BV
-xnor u v = not_ $ u `xor` v
+xnor u v = not $ u `xor` v
 {-# INLINE xnor #-}
 
 -- | Left shift.
@@ -645,7 +683,7 @@ shr = (>>.)
 
 -- | Arithmetic right shift
 ashr :: BV -> BV -> BV
-ashr u v | msb u     = not_ ((not_ u) >>. v)
+ashr u v | msb u     = not ((not u) >>. v)
          | otherwise = u >>. v
 
 -- | Rotate left.
@@ -686,8 +724,8 @@ fromBool True  = BV 1 1
 -- >>> fromBits [False, False, True]
 -- [3]1
 fromBits :: [Bool] -> BV
-fromBits bs = BV n $ snd $ foldr go (1,0) bs
-  where n = length bs
+fromBits bs = BV n $ snd $ List.foldr go (1,0) bs
+  where n = List.length bs
         go b (!v,!acc) | b         = (v',acc+v)
                        | otherwise = (v',acc)
           where v' = 2*v
@@ -698,7 +736,7 @@ fromBits bs = BV n $ snd $ foldr go (1,0) bs
 -- >>> toBits [4]11
 -- [True, False, True, True]
 toBits :: BV -> [Bool]
-toBits (BV n a) = map (testBit a) [n-1,n-2..0]
+toBits (BV n a) = List.map (testBit a) [n-1,n-2..0]
 {-# INLINE toBits #-}
 
 ----------------------------------------------------------------------
@@ -706,7 +744,7 @@ toBits (BV n a) = map (testBit a) [n-1,n-2..0]
 
 -- | Show a bit-vector in binary form.
 showBin :: BV -> String
-showBin = ("0b" ++) . map showBit . toBits
+showBin = ("0b" ++) . List.map showBit . toBits
   where showBit True  = '1'
         showBit False = '0'
 
@@ -731,11 +769,11 @@ hexChar _  = error "Data.BitVector.hexChar: invalid input"
 
 -- | Show a bit-vector in octal form.
 showOct :: BV -> String
-showOct = ("0o" ++) . map (hexChar . nat) . group_ (3::Int)
+showOct = ("0o" ++) . List.map (hexChar . nat) . group (3::Int)
 
 -- | Show a bit-vector in hexadecimal form.
 showHex :: BV -> String
-showHex = ("0x" ++) . map (hexChar . nat) . group_ (4::Int)
+showHex = ("0x" ++) . List.map (hexChar . nat) . group (4::Int)
 
 ----------------------------------------------------------------------
 --- Utilities

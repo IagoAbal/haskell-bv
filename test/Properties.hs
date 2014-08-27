@@ -6,14 +6,15 @@
 {-# LANGUAGE TupleSections     #-}
 
 -- |
--- Copyright : (c) 2012-2013 Iago Abal, HASLab & University of Minho
+-- Copyright : (c) 2012-2014 Iago Abal
+--             (c) 2012-2013 HASLab & University of Minho
 -- License   : BSD3
--- Maintainer: Iago Abal <iago.abal@gmail.com>
+-- Maintainer: Iago Abal <mail@iagoabal.eu>
 --
 -- QuickCheck properties for 'Data.BitVector'.
 module Main where
 
-import Data.BitVector
+import Data.BitVector as BV
 
 import Control.Applicative ( (<$>), (<*>) )
 
@@ -144,7 +145,7 @@ prop_smod_is_rem a b =
 -- * Not
 
 prop_not_id :: BV -> Bool
-prop_not_id a = not_(not_ a) ==. a
+prop_not_id a = BV.not(BV.not a) ==. a
 
 -- * And
 
@@ -190,9 +191,9 @@ prop_ror_id a = a `rotateR` (size a) ==. a
 
 prop_split_join_id :: BV -> Property
 prop_split_join_id a = forallDivisorOf (size a) $ \n ->
-  join (split n a) ==. a
+  BV.join (BV.split n a) ==. a
 
 prop_group_join_id :: BV -> Property
 prop_group_join_id a = forallDivisorOf (size a) $ \n ->
-  join (group_ n a) ==. a
+  BV.join (BV.group n a) ==. a
 
