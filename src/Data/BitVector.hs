@@ -137,19 +137,21 @@ instance Show BV where
 -- >>> bitVec 4 (-1)
 -- [4]15
 bitVec :: Integral a => Int -> a -> BV
-bitVec n a | n < 0     = error "bitVec: negative size"
+bitVec n a | n < 0     = error "Data.BitVector.bitVec: negative size"
            | a >= 0    = BV n $ fromIntegral a
            | otherwise = negate $ BV n $ fromIntegral (-a)
 {-# INLINE bitVec #-}
 
 -- | Create a mask of ones.
 ones :: Int -> BV
-ones n = BV n $ 2^n - 1
+ones n | n < 0     = error "Data.BitVector.ones: negative size"
+       | otherwise = BV n (2^n - 1)
 {-# INLINE ones #-}
 
 -- | Create a mask of zeros.
 zeros :: Int -> BV
-zeros n = BV n 0
+zeros n | n < 0     = error "Data.BitVector.zeros: negative size"
+        | otherwise = BV n 0
 {-# INLINE zeros #-}
 
 ----------------------------------------------------------------------
@@ -253,7 +255,9 @@ infixl 9 @., @@, !.
 -- >>> [4]2 @. 1
 -- True
 (@.) :: Integral ix => BV -> ix -> Bool
-(BV _ a) @. i = testBit a (fromIntegral i)
+(BV n a) @. i | 0 <= i' && i' < n = testBit a i'
+              | otherwise         = error "Data.BitVector.(@.): index of out bounds"
+  where i' = fromIntegral i
 {-# INLINE (@.) #-}
 
 -- | @index i a == a \@. i@
@@ -268,8 +272,8 @@ index = flip (@.)
 -- >>> [4]7 @@ (3,1)
 -- [3]3
 (@@) :: Integral ix => BV -> (ix,ix) -> BV
-(BV _ a) @@ (j,i) = assert (i >= 0 && j >= i) $
-    BV m $ (a `shiftR` i') `mod` 2^m
+(BV _ a) @@ (j,i) | 0 <= i && i <= j = BV m $ (a `shiftR` i') `mod` 2^m
+                  | otherwise        = error "Data.BitVector.(@@): invalid range"
   where i' = fromIntegral i
         m  = fromIntegral $ j - i + 1
 {-# INLINE (@@) #-}
@@ -288,7 +292,8 @@ extract j i = (@@ (j,i))
 -- >>> [3]3 !. 0
 -- False
 (!.) :: Integral ix => BV -> ix -> Bool
-(BV n a) !. i = assert (i' < n) $ testBit a (n-i'-1)
+(BV n a) !. i | 0 <= i' && i' < n = testBit a (n-i'-1)
+              | otherwise         = error "Data.BitVector.(!.): index out of bounds"
   where i' = fromIntegral i
 {-# INLINE (!.) #-}
 
@@ -296,8 +301,8 @@ extract j i = (@@ (j,i))
 --
 -- @least m u == u \@\@ (m-1,0)@
 least :: Integral ix => ix -> BV -> BV
-least m (BV _ a) = assert (m >= 1) $
-  BV m' $ a `mod` 2^m
+least m (BV _ a) | m' < 1    = error "Data.BitVector.least: non-positive index"
+                 | otherwise = BV m' $ a `mod` 2^m
   where m' = fromIntegral m
 {-# INLINE least #-}
 
@@ -305,8 +310,9 @@ least m (BV _ a) = assert (m >= 1) $
 --
 -- @most m u == u \@\@ (n-1,n-m)@
 most :: Integral ix => ix -> BV -> BV
-most m (BV n a) = assert (m' >= 1 && m' <= n) $
-  BV m' $ a `shiftR` (n-m')
+most m (BV n a) | m' < 1    = error "Data.BitVector.most: non-positive index"
+                | m' > n    = error "Data.BitVector.most: index out of bounds"
+                | otherwise = BV m' $ a `shiftR` (n-m')
   where m' = fromIntegral m
 {-# INLINE most #-}
 
@@ -504,20 +510,21 @@ and_ ws = BV n' $ foldl1' (.&.) $ map nat ws
 
 -- | Disjunction.
 --
--- @or_ == foldr1 (.|.)@
-or_ :: [BV] -> BV
-or_ [] = error "Data.BitVector.or_: empty list"
-or_ ws = BV n' $ foldl1' (.|.) $ map nat ws
-  where n' = maximum $ map size ws
-{-# INLINE or_ #-}
+-- @or == foldr1 (.|.)@
+or, or_ :: [BV] -> BV
+or [] = error "Data.BitVector.or: empty list"
+or ws = BV n' $ List.foldl1' (.|.) $ List.map nat ws
+  where n' = List.maximum $ List.map size ws
+or_ = or
+{-# INLINE or #-}
 
 -- | Split a bit-vector /k/ times.
 --
 -- >>> split 3 [4]15
 -- [[2]0,[2]3,[2]3]
 split :: Integral times => times -> BV -> [BV]
-split k (BV n a) = assert (k > 0) $
-  map (BV s) $ splitInteger s k' a
+split k (BV n a) | k > 0     = List.map (BV s) $ splitInteger s k' a
+                 | otherwise = error "Data.BitVector.split: non-positive splits"
   where k' = fromIntegral k
         (q,r) = divMod n k'
         s = q + signum r
