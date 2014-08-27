@@ -610,11 +610,16 @@ instance Bits BV where
   (BV n1 a) `xor` (BV n2 b) = BV n $ a `xor` b
     where n = max n1 n2
   complement (BV n a) = BV n $ 2^n - 1 - a
+#if MIN_VERSION_base(4,7,0)
+  zeroBits = BV 1 0
+#endif
   bit i = BV (i+1) (2^i)
   testBit (BV n a) i | i < n     = testBit a i
                      | otherwise = False
   bitSize = undefined
+#if MIN_VERSION_base(4,7,0)
   bitSizeMaybe = const Nothing
+#endif
   isSigned = const False
   shiftL (BV n a) k
     | k > n     = BV n 0

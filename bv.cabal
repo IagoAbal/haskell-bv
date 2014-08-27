@@ -28,12 +28,13 @@ Library
   -- Other-modules:
   Hs-Source-Dirs:      src
   ghc-options:         -Wall
-  Build-depends:       base >=4.7 && <5
+  Extensions:          CPP
+  Build-depends:       base >=4.6 && <5
 
 Executable bv-tester
   if flag(test)
     Buildable:           True
-    Build-depends:       base >=4.7 && <5,
+    Build-depends:       base >=4.6 && <5,
                          QuickCheck >=2.4 && < 2.7,
                          test-framework-quickcheck2 ==0.3.*,
                          test-framework-th ==0.2.*
@@ -43,3 +44,5 @@ Executable bv-tester
   Main-Is:             Properties.hs
   Hs-Source-Dirs:      src, test
   ghc-options:         -Wall
+  Extensions:          CPP
+
