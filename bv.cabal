@@ -29,6 +29,7 @@ Library
   Hs-Source-Dirs:      src
   ghc-options:         -Wall
   Extensions:          CPP
+  Other-Extensions:    BangPatterns, DeriveDataTypeable
   Build-depends:       base >=4.6 && <5
 
 Executable bv-tester
@@ -45,4 +46,5 @@ Executable bv-tester
   Hs-Source-Dirs:      src, test
   ghc-options:         -Wall
   Extensions:          CPP
+  Other-Extensions:    BangPatterns, DeriveDataTypeable
 
