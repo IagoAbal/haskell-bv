@@ -19,9 +19,8 @@
 -- * Bit-vectors are interpreted as unsigned integers
 --   (i.e. natural numbers) except for some specific /signed/ operations.
 --
--- * Bit-vectors are /size-polymorphic/ insofar as most operations treat
---   a bit-vector of size /n/ as of size /m/ for /m >= n/ if required.
---   In other words, the size of a bit-vector is /elastic/ and auto-adjusted.
+-- * Most operations are in some way /size-polymorphic/ and, if required, 
+--   will perform padding to adjust the size of input bit-vectors.
 --
 -- For documentation purposes we will write @[n]k@ to denote a bit-vector
 -- of size @n@ representing the natural number @k@.
