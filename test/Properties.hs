@@ -76,6 +76,12 @@ instance Arbitrary BV3 where
 
 -- * bitVec
 
+prop_bv_any :: Integer -> Property
+prop_bv_any i = forAll gSize $ \n ->
+  let u = bitVec n i in
+  let a = nat u in
+  a >= 0 && a < 2^n
+
 prop_bv_nat :: Integer -> Property
 prop_bv_nat i = i >= 0 ==> nat(fromInteger i) == i
 
@@ -176,8 +182,7 @@ prop_shr_0 a i = i >= size a ==> a `shiftR` i == 0
 
 prop_shr_div :: BV -> Property
 prop_shr_div a = forallIndex1Of a $ \i ->
-                   a `shiftR` i == a `div` bitVec n ((2::Integer)^i)
-  where n = size a
+                   a `shiftR` i == a `div` fromInteger((2::Integer)^i)
 
 -- * Rotate
 
@@ -196,4 +201,3 @@ prop_split_join_id a = forallDivisorOf (size a) $ \n ->
 prop_group_join_id :: BV -> Property
 prop_group_join_id a = forallDivisorOf (size a) $ \n ->
   BV.join (BV.group n a) ==. a
-

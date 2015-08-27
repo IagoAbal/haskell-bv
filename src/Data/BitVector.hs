@@ -168,8 +168,9 @@ instance Show BV where
 -- [4]15
 bitVec :: Integral a => Int -> a -> BV
 bitVec n a | n < 0     = error "Data.BitVector.bitVec: negative size"
-           | a >= 0    = BV n $ fromIntegral a
-           | otherwise = negate $ BV n $ fromIntegral (-a)
+           | a >= 0    = BV n (a' `mod` 2^n)
+           | otherwise = negate $ BV n ((-a') `mod` 2^n)
+  where a' = fromIntegral a
 {-# INLINE bitVec #-}
 
 -- | Create a mask of ones.
