@@ -32,6 +32,7 @@ module Data.BitVector
   , nat, uint, int
     -- * Creation
   , bitVec
+  , bitVecs
   , ones, zeros
     -- * Test
   , isNat
@@ -172,6 +173,23 @@ bitVec n a | n < 0     = error "Data.BitVector.bitVec: negative size"
            | otherwise = negate $ BV n ((-a') `mod` 2^n)
   where a' = fromIntegral a
 {-# INLINE bitVec #-}
+
+-- | List of bit-vector literals of the same size
+--
+-- When a list of integer literals is interpreted as a list of bit-vectors,
+-- 'fromInteger' is applied to each element invidually:
+--
+-- >>> [1,3,5] :: [BV]
+-- [ [1]1, [2]3, [3]5 ]
+--
+-- Sometimes we want to specify a list of bit-vectors literals of the same
+-- size, and for that we can use 'bitVects':
+--
+-- >>> bitVecs 3 [1,3,5]
+-- [ [3]1, [3]3, [3]5 ]
+bitVecs :: Integral a => Int -> [a] -> [BV]
+bitVecs = List.map . bitVec
+{-# INLINE bitVecs #-}
 
 -- | Create a mask of ones.
 ones :: Int -> BV
