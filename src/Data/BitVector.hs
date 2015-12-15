@@ -91,7 +91,6 @@ import qualified Data.Bool as Bool
 import           Data.Data ( Data )
 import qualified Data.List as List
   ( foldr, foldl1'
-  , length
   , map
   , maximum
   )
@@ -762,11 +761,12 @@ fromBool True  = BV 1 1
 -- >>> fromBits [False, False, True]
 -- [3]1
 fromBits :: [Bool] -> BV
-fromBits bs = BV n $ snd $ List.foldr go (1,0) bs
-  where n = List.length bs
-        go b (!v,!acc) | b         = (v',acc+v)
-                       | otherwise = (v',acc)
-          where v' = 2*v
+fromBits bs =
+  let (n,k) = List.foldr go (0,0) bs in
+  BV n k
+  -- NB: 'setBit' is a GMP function, faster than regular addition.
+  where go b (!i,!v) | b         = (i+1,setBit v i)
+                     | otherwise = (i+1,v)
 {-# INLINE fromBits #-}
 
 -- | Create a big-endian list of bits from a bit-vector.
