@@ -15,6 +15,7 @@
 module Main where
 
 import Data.BitVector as BV
+import Data.List as List
 
 import Control.Applicative ( (<$>), (<*>) )
 
@@ -89,6 +90,10 @@ prop_bv_neg :: Integer -> Property
 prop_bv_neg i = i < 0 ==> int(fromInteger i) == i
 
 -- * Indexing
+
+prop_mult_index :: BV -> Property
+prop_mult_index a = forAll (listOf (gIndex a)) $ \is ->
+  a @: is ==. fromBits (List.map (a @.) is)
 
 prop_rev_index :: BV -> Property
 prop_rev_index a = forallIndexOf a $ \i -> a !. i == a @. (size(a)-i-1)

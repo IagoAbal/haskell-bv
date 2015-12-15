@@ -44,6 +44,7 @@ module Data.BitVector
     -- * Indexing
   , (@.), index
   , (@@), extract
+  , (@:)
   , (!.)
   , least, most
   , msb, lsb, msb1, lsb1
@@ -292,7 +293,7 @@ u@BV{size=n} `sge` v@BV{size=m} = n == m && int u >= int v
 ----------------------------------------------------------------------
 --- Indexing
 
-infixl 9 @., @@, !.
+infixl 9 @., @@, @:, !.
 
 -- | Bit indexing.
 --
@@ -331,6 +332,20 @@ index = flip (@.)
 extract :: Integral ix => ix -> ix -> BV -> BV
 extract j i = (@@ (j,i))
 {-# INLINE extract #-}
+
+-- | Bit list indexing.
+--
+-- prop> u @: is ==. fromBits $ List.map (u @.) is
+(@:) :: Integral ix => BV -> [ix] -> BV
+(BV n a) @: is = fromBits $ List.map testBitAux is
+  -- NB: Failing _late_ (the bounds check is done by 'testBitAux') avoids
+  -- duplicating calls to 'fromIntegral' **and** this code should allow GHC
+  -- to fuse 'fodlr' (from inlining 'frombits') with 'map'.
+  where testBitAux i
+          | i' >= 0 && i' < n = testBit a i'
+          | otherwise = error "Data.BitVector.(@:): index out of bounds"
+          where i' = fromIntegral i
+{-# INLINE (@:) #-}
 
 -- | Reverse bit-indexing.
 --
