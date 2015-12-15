@@ -30,7 +30,7 @@ Library
   ghc-options:         -Wall
   Extensions:          CPP
   Other-Extensions:    BangPatterns, DeriveDataTypeable
-  Build-depends:       base >=4.6 && <5
+  Build-depends:       base >=4.6 && <5, integer-gmp, ghc-prim
 
 Executable bv-tester
   if flag(test)

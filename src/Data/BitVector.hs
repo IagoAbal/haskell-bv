@@ -2,6 +2,7 @@
 
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE MagicHash #-}
 
 -- |
 -- Module    : Data.BitVector
@@ -80,7 +81,6 @@ module Data.BitVector
   , showHex
   -- * Utilities
   , maxNat
-  , integerWidth
   ) where
 
 import           Control.Exception ( assert )
@@ -97,11 +97,15 @@ import qualified Data.List as List
 import           Data.Ord
 import           Data.Typeable ( Typeable )
 
+import           GHC.Integer.Logarithms ( integerLog2# )
+import           GHC.Prim ( (+#) )
+import           GHC.Types ( Int(..) )
+
 import           Prelude
   ( Char
   , Eq(..)
   , Enum(..), Num(..)
-  , Integral(..), Int, Integer
+  , Integral(..), Integer
   , Maybe(..)
   , Real(..)
   , Show(..), String
@@ -435,7 +439,8 @@ instance Num BV where
   abs u | msb u     = negate u
         | otherwise = u
   signum u = bitVec 2 $ signum $ int u
-  fromInteger i = bitVec (integerWidth i) i
+  fromInteger i = bitVec n i
+    where n = I# (integerLog2# i +# 1#)
 
 -- | Bit-vector 'signum' as an 'Integral'.
 signumI :: Integral a => BV -> a
@@ -483,7 +488,8 @@ smod u@(BV n1 _) v@(BV n2 _) = bitVec n r
 lg2 :: BV -> BV
 lg2 (BV _ 0) = error "Data.BitVector.lg2: zero bit-vector"
 lg2 (BV n 1) = BV n 0
-lg2 (BV n a) = BV n $ toInteger $ integerWidth (a-1)
+lg2 (BV n a) = BV n (toInteger a')
+  where a' = I# (integerLog2# a)
 {-# INLINE lg2 #-}
 
 ----------------------------------------------------------------------
@@ -820,18 +826,3 @@ showHex = ("0x" ++) . List.map (hexChar . nat) . group (4::Int)
 maxNat :: (Integral a, Integral b) => a -> b
 maxNat n = 2^n - 1
 {-# INLINE maxNat #-}
-
--- | Minimum width of a bit-vector to represent a given integer number.
---
--- >>> integerWith 4
--- 3
---
--- >>> integerWith (-4)
--- 4
-integerWidth :: Integer -> Int
-integerWidth !n
-  | n >= 0    = go 1 1
-  | otherwise = 1 + integerWidth (abs n)
-  where go !k !k_max | k_max >= n = k
-                     | otherwise  = go (k+1) (2*k_max+1)
-{-# INLINE integerWidth #-}
