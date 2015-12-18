@@ -204,6 +204,14 @@ prop_rol_id a = a `rotateL` (size a) ==. a
 prop_ror_id :: BV -> Bool
 prop_ror_id a = a `rotateR` (size a) ==. a
 
+-- * Concat
+
+prop_concat_id :: BV -> Bool
+prop_concat_id a = nil # a ==. a && a # nil ==. a
+
+prop_concat_assoc :: BV -> BV -> BV -> Bool
+prop_concat_assoc a b c = (a # b) # c ==. a # (b # c)
+
 -- * Split & group
 
 prop_split_join_id :: BV -> Property

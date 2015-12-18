@@ -32,6 +32,7 @@ module Data.BitVector
   , size, width
   , nat, uint, int
     -- * Creation
+  , nil
   , bitVec
   , bitVecs
   , ones, zeros
@@ -94,6 +95,7 @@ import qualified Data.List as List
   , map
   , maximum
   )
+import           Data.Monoid ( Monoid(..) )
 import           Data.Ord
 import           Data.Typeable ( Typeable )
 
@@ -161,6 +163,10 @@ instance Show BV where
 
 ----------------------------------------------------------------------
 --- Construction
+
+nil :: BV
+nil = BV 0 0
+{-# INLINE nil #-}
 
 -- | Create a bit-vector given a size and an integer value.
 --
@@ -505,6 +511,13 @@ infixr 5 #
 
 cat = (#)
 {-# INLINE cat #-}
+
+-- This is the most sensible monoid instance until we have size types!
+instance Monoid BV where
+  mempty  = nil
+  {-# INLINE mempty #-}
+  mappend = (#)
+  {-# INLINE mappend #-}
 
 -- | Logical extension.
 --
