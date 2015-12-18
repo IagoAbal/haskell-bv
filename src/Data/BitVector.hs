@@ -52,6 +52,7 @@ module Data.BitVector
   , msb, lsb, msb1, lsb1
   -- * Arithmetic
   , signumI
+  , pow
   , sdiv, srem, smod
   , lg2
   -- * List-like operations
@@ -467,6 +468,17 @@ instance Integral BV where
           (q,r) = quotRem a b
   divMod = quotRem
   toInteger = nat
+
+-- | Bit-vector exponentiation.
+--
+-- @pow [n]k e@ computes @k@ raised to @e@ modulo @n@.
+--
+-- This is faster than Haskell's (^) operator because it performs
+-- modulo division just once. Besides, @a^0 == [1]0@ !!!
+pow :: Integral exp => BV -> exp -> BV
+pow (BV n a) e = BV n (a^e `mod` m)
+  where m = 2^n
+{-# INLINE pow #-}
 
 -- | 2's complement signed division.
 sdiv :: BV -> BV -> BV

@@ -33,6 +33,9 @@ main = $(defaultMainGenerator)
 c_MAX_SIZE :: Int
 c_MAX_SIZE = 8192
 
+c_MAX_EXP :: Int
+c_MAX_EXP = 128
+
 data BV2 = BV2 !BV !BV
     deriving (Eq,Show)
 
@@ -42,8 +45,14 @@ data BV3 = BV3 !BV !BV !BV
 divides :: Integral a => a -> a -> Bool
 divides k n = n `mod` k == 0
 
+aNat :: Gen Int
+aNat = abs <$> arbitrary
+
+anExp :: Gen Int
+anExp = min c_MAX_EXP <$> aNat
+
 gSize :: Gen Int
-gSize = min c_MAX_SIZE . (+1) . abs <$> arbitrary
+gSize = min c_MAX_SIZE . (+1) <$> aNat
 
 gBV :: Int -> Gen BV
 gBV sz = bitVec sz <$> choose (0::Integer,2^sz-1)
@@ -159,6 +168,16 @@ prop_srem_is_rem a b =
 prop_smod_is_rem :: BV -> BV -> Property
 prop_smod_is_rem a b =
   isNat a && isPos b ==> a `smod` b ==. a `rem` b
+
+-- * Exponentiation
+
+prop_exp_zero :: BV -> Bool
+prop_exp_zero a =
+  pow a (0::Int) ==. bitVec (size a) (1::Int)
+
+prop_exp_spec :: BV -> Property
+prop_exp_spec a = forAll anExp $ \e ->
+  e /= 0 ==> pow a e ==. a^e
 
 -- * Not
 
