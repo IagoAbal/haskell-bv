@@ -435,7 +435,8 @@ instance Num BV where
     where n = max n1 n2
   (BV n1 a) * (BV n2 b) = BV n $ (a * b) `mod` 2^n
     where n = max n1 n2
-  negate (BV n a) = BV n $ 2^n - a
+  negate u@(BV _ 0) = u
+  negate   (BV n a) = BV n $ 2^n - a
   abs u | msb u     = negate u
         | otherwise = u
   signum u = bitVec 2 $ signum $ int u

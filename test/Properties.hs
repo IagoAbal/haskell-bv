@@ -110,6 +110,13 @@ prop_most a = forallIndex1Of a $ \m -> most m a ==. a@@(n-1,n-m)
 prop_neg_id :: BV -> Bool
 prop_neg_id a = -(-a) ==. a
 
+prop_neg_int :: Integer -> Property
+prop_neg_int i = forAll gSize $ \n ->
+  let u = bitVec n i in
+  if nat u == 2^(n-1) -- only the msb is set, ie 1000...0
+  then int u == -2^(n-1) && int (-u) == int u -- overflow!
+  else int (-u) == -(int u)
+
 prop_abs_id :: BV -> Bool
 prop_abs_id a = abs(abs(a)) ==. abs(a)
 
