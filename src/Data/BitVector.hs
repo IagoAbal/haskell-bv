@@ -56,7 +56,7 @@ module Data.BitVector
   , sdiv, srem, smod
   , lg2
   -- * List-like operations
-  , (#), cat
+  , (#), cat, append, concat
   , zeroExtend, signExtend
   , foldl, foldl_
   , foldr, foldr_
@@ -122,6 +122,7 @@ import           Prelude
   )
 
 {-# DEPRECATED foldl_, foldr_, reverse_, replicate_, and_, or_, group_, not_ "Use corresponding versions without underscore" #-}
+{-# DEPRECATED cat "Use (#) or append instead" #-}
 
 ----------------------------------------------------------------------
 --- Bit-vectors
@@ -517,12 +518,19 @@ lg2 (BV n a) = BV n (toInteger a')
 infixr 5 #
 
 -- | Concatenation of two bit-vectors.
-(#), cat :: BV -> BV -> BV
+(#), cat, append :: BV -> BV -> BV
 (BV n a) # (BV m b) = BV (n + m) ((a `shiftL` m) + b)
 {-# INLINE (#) #-}
 
 cat = (#)
 {-# INLINE cat #-}
+
+append = (#)
+{-# INLINE append #-}
+
+-- | An alias for 'join'.
+concat :: [BV] -> BV
+concat = join
 
 -- This is the most sensible monoid instance until we have size types!
 instance Monoid BV where
