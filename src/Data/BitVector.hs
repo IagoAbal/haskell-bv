@@ -236,9 +236,11 @@ infix 4 `slt`, `sle`, `sgt`, `sge`
 
 instance Eq BV where
   (BV _ a) == (BV _ b) = a == b
+  {-# INLINE (==) #-}
 
 instance Ord BV where
   compare = comparing nat
+  {-# INLINE compare #-}
 
 -- | Fixed-size equality.
 --
@@ -441,15 +443,22 @@ lsb1 (BV _ a) = go 0
 instance Num BV where
   (BV n1 a) + (BV n2 b) = BV n $ (a + b) `mod` 2^n
     where n = max n1 n2
+  {-# INLINE (+) #-}
+  {-# INLINE (-) #-}
   (BV n1 a) * (BV n2 b) = BV n $ (a * b) `mod` 2^n
     where n = max n1 n2
+  {-# INLINE (*) #-}
   negate u@(BV _ 0) = u
   negate   (BV n a) = BV n $ 2^n - a
+  {-# INLINE negate #-}
   abs u | msb u     = negate u
         | otherwise = u
+  {-# INLINE abs #-}
   signum u = bitVec 2 $ signum $ int u
+  {-# INLINE signum #-}
   fromInteger i = bitVec n i
     where n = I# (integerLog2# i +# 1#)
+  {-# INLINE fromInteger #-}
 
 -- | Bit-vector 'signum' as an 'Integral'.
 signumI :: Integral a => BV -> a
@@ -467,8 +476,11 @@ instance Integral BV where
   quotRem (BV n1 a) (BV n2 b) = (BV n q,BV n r)
     where n = max n1 n2
           (q,r) = quotRem a b
+  {-# INLINE quotRem #-}
   divMod = quotRem
+  {-# INLINE divMod #-}
   toInteger = nat
+  {-# INLINE toInteger #-}
 
 -- | Bit-vector exponentiation.
 --
@@ -679,17 +691,24 @@ infixl 8 <<., `shl`, >>., `shr`, `ashr`, <<<., `rol`, >>>., `ror`
 instance Bits BV where
   (BV n1 a) .&. (BV n2 b) = BV n $ a .&. b
     where n = max n1 n2
+  {-# INLINE (.&.) #-}
   (BV n1 a) .|. (BV n2 b) = BV n $ a .|. b
     where n = max n1 n2
+  {-# INLINE (.|.) #-}
   (BV n1 a) `xor` (BV n2 b) = BV n $ a `xor` b
     where n = max n1 n2
+  {-# INLINE xor #-}
   complement (BV n a) = BV n $ 2^n - 1 - a
+  {-# INLINE complement #-}
 #if MIN_VERSION_base(4,7,0)
   zeroBits = BV 1 0
+  {-# INLINE zeroBits #-}
 #endif
   bit i = BV (i+1) (2^i)
+  {-# INLINE bit #-}
   testBit (BV n a) i | i < n     = testBit a i
                      | otherwise = False
+  {-# INLINE testBit #-}
   bitSize = undefined
 #if MIN_VERSION_base(4,7,0)
   bitSizeMaybe = const Nothing
@@ -698,9 +717,11 @@ instance Bits BV where
   shiftL (BV n a) k
     | k > n     = BV n 0
     | otherwise = BV n $ shiftL a k `mod` 2^n
+  {-# INLINE shiftL #-}
   shiftR (BV n a) k
     | k > n     = BV n 0
     | otherwise = BV n $ shiftR a k
+  {-# INLINE shiftR #-}
   rotateL bv       0 = bv
   rotateL (BV n a) k
     | k == n    = BV n a
@@ -709,6 +730,7 @@ instance Bits BV where
     where s = n - k
           l = a `shiftR` s
           h = (a `shiftL` k) `mod` 2^n
+  {-# INLINE rotateL #-}
   rotateR bv       0 = bv
   rotateR (BV n a) k
     | k == n    = BV n a
@@ -717,7 +739,9 @@ instance Bits BV where
     where s = n - k
           l = a `shiftR` k
           h = (a `shiftL` s) `mod` 2^n
+  {-# INLINE rotateR #-}
   popCount (BV _ a) = assert (a >= 0) $ popCount a
+  {-# INLINE popCount #-}
 
 -- | An alias for 'complement'.
 not, not_ :: BV -> BV
