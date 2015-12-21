@@ -92,7 +92,7 @@ import           Data.Bool ( Bool(..), otherwise, (&&))
 import qualified Data.Bool as Bool
 import           Data.Data ( Data )
 import qualified Data.List as List
-  ( foldr, foldl1'
+  ( foldr, foldl', foldl1'
   , map
   , maximum
   )
@@ -530,6 +530,8 @@ instance Monoid BV where
   {-# INLINE mempty #-}
   mappend = (#)
   {-# INLINE mappend #-}
+  mconcat = join
+  {-# INLINE mconcat #-}
 
 -- | Logical extension.
 --
@@ -653,12 +655,12 @@ splitInteger n = go []
                 a' = a `shiftR` n'
 {-# INLINE splitInteger #-}
 
--- | Concatenate a list of bit-vectors.
+-- | Concatenate a (possibly empty) list of bit-vectors.
 --
 -- >>> join [[2]3,[2]2]
 -- [4]14
 join :: [BV] -> BV
-join = List.foldl1' (#)
+join = List.foldl' (#) nil
 {-# INLINE join #-}
 
 ----------------------------------------------------------------------

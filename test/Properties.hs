@@ -231,6 +231,9 @@ prop_concat_id a = nil # a ==. a && a # nil ==. a
 prop_concat_assoc :: BV -> BV -> BV -> Bool
 prop_concat_assoc a b c = (a # b) # c ==. a # (b # c)
 
+prop_concat_join :: [BV] -> Bool
+prop_concat_join us = join us ==. List.foldr (#) nil us
+
 -- * Split & group
 
 prop_split_join_id :: BV -> Property
