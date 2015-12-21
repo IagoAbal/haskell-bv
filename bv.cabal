@@ -27,7 +27,7 @@ Library
   Exposed-modules:     Data.BitVector
   -- Other-modules:
   Hs-Source-Dirs:      src
-  ghc-options:         -Wall
+  ghc-options:         -Wall -O2
   Extensions:          CPP
   Other-Extensions:    BangPatterns, DeriveDataTypeable
   Build-depends:       base >=4.6 && <5, integer-gmp, ghc-prim
