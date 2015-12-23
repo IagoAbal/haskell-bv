@@ -81,8 +81,6 @@ module Data.BitVector
   , showBin
   , showOct
   , showHex
-  -- * Utilities
-  , maxNat
   ) where
 
 import           Control.Exception ( assert )
@@ -883,6 +881,6 @@ showHex = ("0x" ++) . List.map (hexChar . nat) . group (4::Int)
 --- Utilities
 
 -- | Greatest natural number representable with /n/ bits.
-maxNat :: (Integral a, Integral b) => a -> b
+maxNat :: Integral size => size -> Integer
 maxNat n = 2^n - 1
 {-# INLINE maxNat #-}
