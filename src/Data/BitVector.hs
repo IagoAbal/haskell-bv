@@ -92,15 +92,11 @@ import           Data.Bool ( Bool(..), otherwise, (&&))
 import qualified Data.Bool as Bool
 import           Data.Data ( Data )
 import qualified Data.List as List
-  ( foldr, foldl', foldl1'
-  , map
-  , maximum
-  )
 import           Data.Monoid ( Monoid(..) )
 import           Data.Ord
 import           Data.Typeable ( Typeable )
 
-import           GHC.Integer.Logarithms ( integerLog2# )
+import qualified GHC.Integer.Logarithms as I
 import           GHC.Prim ( (+#) )
 import           GHC.Types ( Int(..) )
 
@@ -457,7 +453,7 @@ instance Num BV where
   signum u = bitVec 2 $ signum $ int u
   {-# INLINE signum #-}
   fromInteger i = bitVec n i
-    where n = I# (integerLog2# i +# 1#)
+    where n = I# (I.integerLog2# i +# 1#)
   {-# INLINE fromInteger #-}
 
 -- | Bit-vector 'signum' as an 'Integral'.
@@ -521,7 +517,7 @@ lg2 :: BV -> BV
 lg2 (BV _ 0) = error "Data.BitVector.lg2: zero bit-vector"
 lg2 (BV n 1) = BV n 0
 lg2 (BV n a) = BV n (toInteger a')
-  where a' = I# (integerLog2# a)
+  where a' = I# (I.integerLog2# a)
 {-# INLINE lg2 #-}
 
 ----------------------------------------------------------------------
