@@ -622,9 +622,11 @@ replicate_ = replicate
 
 -- | Conjunction.
 --
--- @and == foldr1 (.&.)@
+-- Essentially, @and == foldr1 (.&.)@.
+--
+-- Returns @[1]1@ if the input list is empty.
 and, and_ :: [BV] -> BV
-and [] = error "Data.BitVector.and: empty list"
+and [] = ones 1
 and ws = BV n' $ List.foldl1' (.&.) $ List.map nat ws
   where n' = List.maximum $ List.map size ws
 and_ = and
@@ -632,9 +634,11 @@ and_ = and
 
 -- | Disjunction.
 --
--- @or == foldr1 (.|.)@
+-- Essentially, @or == foldr1 (.|.)@.
+--
+-- Returns @[1]0@ if the input list is empty.
 or, or_ :: [BV] -> BV
-or [] = error "Data.BitVector.or: empty list"
+or [] = zeros 1
 or ws = BV n' $ List.foldl1' (.|.) $ List.map nat ws
   where n' = List.maximum $ List.map size ws
 or_ = or
