@@ -9,7 +9,7 @@ License:             BSD3
 License-file:        LICENSE
 Author:              Iago Abal <mail@iagoabal.eu>
 Maintainer:          Iago Abal <mail@iagoabal.eu>
-Copyright:           2012-2014 Iago Abal
+Copyright:           2012-2015 Iago Abal
 Category:            Data, Bit Vectors
 Build-type:          Simple
 Cabal-version:       >=1.6
