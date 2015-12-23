@@ -33,8 +33,8 @@ main = $(defaultMainGenerator)
 c_MAX_SIZE :: Int
 c_MAX_SIZE = 8192
 
-c_MAX_EXP :: Int
-c_MAX_EXP = 128
+c_SMALL_NAT :: Int
+c_SMALL_NAT = 128
 
 data BV2 = BV2 !BV !BV
     deriving (Eq,Show)
@@ -48,8 +48,9 @@ divides k n = n `mod` k == 0
 aNat :: Gen Int
 aNat = abs <$> arbitrary
 
-anExp :: Gen Int
-anExp = min c_MAX_EXP <$> aNat
+aSmallNat, anExp :: Gen Int
+aSmallNat = min c_SMALL_NAT <$> aNat
+anExp = aSmallNat
 
 gSize :: Gen Int
 gSize = min c_MAX_SIZE . (+1) <$> aNat
@@ -233,6 +234,18 @@ prop_concat_assoc a b c = (a # b) # c ==. a # (b # c)
 
 prop_concat_join :: [BV] -> Bool
 prop_concat_join us = join us ==. List.foldr (#) nil us
+
+-- * Bit extension
+
+prop_zero_extend :: BV -> Property
+prop_zero_extend a = forAll aNat $ \d ->
+  let a' = zeroExtend d a in
+  a' == a && size a' - size a == d
+
+prop_sign_extend :: BV -> Property
+prop_sign_extend a = forAll aSmallNat $ \d ->
+  let a' = signExtend d a in
+  int a' == int a && size a' - size a == d
 
 -- * Split & group
 
