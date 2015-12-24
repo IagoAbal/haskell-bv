@@ -29,7 +29,7 @@ Library
   Hs-Source-Dirs:      src
   ghc-options:         -Wall -O2
   Extensions:          CPP
-  Other-Extensions:    BangPatterns, DeriveDataTypeable
+  Other-Extensions:    BangPatterns, DeriveDataTypeable, MagicHash
   Build-depends:       base >=4.6 && <5, integer-gmp, ghc-prim
 
 Executable bv-tester
@@ -46,5 +46,5 @@ Executable bv-tester
   Hs-Source-Dirs:      src, test
   ghc-options:         -Wall
   Extensions:          CPP
-  Other-Extensions:    BangPatterns, DeriveDataTypeable
+  Other-Extensions:    BangPatterns, DeriveDataTypeable, MagicHash
 
