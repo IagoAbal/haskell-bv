@@ -18,6 +18,10 @@ source-repository head
   type:     mercurial
   location: https://bitbucket.org/iago/bv-haskell
 
+Flag gmp
+     Description: Using Integer GMP backend.
+     Default: True
+
 Flag test
      Description: Build the test suite, including an executable to run it.
      Default: False
@@ -30,7 +34,9 @@ Library
   ghc-options:         -Wall -O2
   Extensions:          CPP
   Other-Extensions:    BangPatterns, DeriveDataTypeable, MagicHash
-  Build-depends:       base >=4.6 && <5, integer-gmp, ghc-prim
+  Build-depends:       base >=4.6 && <5
+  if impl(ghc) && flag(gmp)
+    Build-depends: integer-gmp, ghc-prim
 
 Executable bv-tester
   if flag(test)
