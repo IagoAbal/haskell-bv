@@ -165,6 +165,7 @@ instance Show BV where
 ----------------------------------------------------------------------
 --- Construction
 
+-- | The /empty/ bit-vector, ie. @[0]0@.
 nil :: BV
 nil = BV 0 0
 {-# INLINE nil #-}
