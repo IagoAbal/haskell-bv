@@ -9,7 +9,7 @@
 
 -- |
 -- Module    : Data.BitVector
--- Copyright : (c) 2012-2014 Iago Abal
+-- Copyright : (c) 2012-2016 Iago Abal
 --             (c) 2012-2013 HASLab & University of Minho
 -- License   : BSD3
 -- Maintainer: Iago Abal <mail@iagoabal.eu>
