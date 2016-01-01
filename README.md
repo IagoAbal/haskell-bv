@@ -1,24 +1,31 @@
 A library for bit-vector arithmetic in Haskell
 =========================================
 
-Bit-vector arithmetic inspired by [SMT-LIB](http://smt-lib.org/) and [Cryptol](http://cryptol.net/).
-
-Bit-vectors are represented as a pair size and value, where sizes are of type _Int_ and values are _Integer_.
-
-* Bit-vectors are interpreted as unsigned integers (i.e. natural numbers) except for some specific signed operations.
-* Most operations are in some way size-polymorphic and, if required, will perform padding to adjust the size of input bit-vectors.
+Bit-vectors are represented as a pair of a _size_ and a _value_,
+where sizes are of type _Int_ and values are _Integer_.
+Operations on bit-vectors are translated into operations on integers.
+Remarkably, most operations taking two or more bit-vectiors, will
+perform zero-padding to adjust the size of the input bit-vectors
+when needed (eg. when adding bit-vectors of different sizes).
+Indexing operators don't do this, to avoid masking _out of bounds_
+errors.
 
 Other libraries
 -------------
 
-There exist many Haskell libraries to handle bit-vectors, but to the best of my knowledge _bv_ is the only one that focuses on bit-vector arithmetic.
+There exist many Haskell libraries to handle bit-vectors, but to the
+best of my knowledge _bv_ is the only one that adequately supports
+bit-vector arithmetic.
 
-If you do not need bit-vector arithmetic, then you probably should use any of the other libraries, which could offer more efficient implementations of bit arrays.
+If you do not need bit-vector arithmetic, then you may consider using
+any of these other libraries, which could offer more compact and 
+efficient implementations of bit arrays.
 
 Importing and name clashes
 -----------------------
 
-Many exported functions name-clash with Prelude functions, it is therefore recommended to do a qualified import:
+Many exported functions name-clash with Prelude functions, it is
+therefore recommended to do a qualified import:
 
     import           Data.BitVector ( BV )
     import qualified Data.BitVector as BV
@@ -26,14 +33,27 @@ Many exported functions name-clash with Prelude functions, it is therefore recom
 Running the test suite
 --------------------
 
-If you wish to run the test suite simply install (or just configure) the package with the flag _test_ enabled and an executable _bv-tester_ will be generated.
+If you wish to run the test suite simply:
 
-    cabal instal bv -ftest
+    cabal configure -ftest
+    cabal build
+
+Then run:
+
+    dist/build/bv-tester/bv-tester
 
 Performance
 ----------
 
-The _BV_ datatype is simply a pair of an _Int_, to represent the size, and an arbitrary-precision _Integer_, to represent the value of a bit-vector. Both fields are strict, and further GHC is being instructed to unbox strict fields within the module.
+**Tip:** For best performance compile with _-fgmp_.
 
-Most bit-vector operations are simple wrappers around _Integer_ operations, and thus we rely heavily on inlining. I hope this library is as efficient as the underlyning implementation of _Integer_, plus some small overhead, but I did not test it rigorously. Please feel free to comment.
+The _BV_ datatype is simply a pair of an _Int_, to represent the
+_size_, and an arbitrary-precision _Integer_, to represent the
+_value_ of a bit-vector.
+Both fields are strict, and we instruct GHC to unbox strict fields.
+Further, we ask GHC to inline virtually all bit-vector operations.
+When inlined, GHC should be able to remove any overhead associated
+with the _BV_ data type, and unbox bit-vector sizes.
+Performance should depend mostly on the _Integer_ data type
+implementation.
 

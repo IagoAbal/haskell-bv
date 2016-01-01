@@ -23,7 +23,7 @@ Flag gmp
      Default: True
 
 Flag test
-     Description: Build the test suite, including an executable to run it.
+     Description: Build the test suite, and an executable to run it.
      Default: False
      Manual: True
 
