@@ -4,7 +4,7 @@ A library for bit-vector arithmetic in Haskell
 Bit-vectors are represented as a pair of a _size_ and a _value_,
 where sizes are of type _Int_ and values are _Integer_.
 Operations on bit-vectors are translated into operations on integers.
-Remarkably, most operations taking two or more bit-vectiors, will
+Remarkably, most operations taking two or more bit-vectors, will
 perform zero-padding to adjust the size of the input bit-vectors
 when needed (eg. when adding bit-vectors of different sizes).
 Indexing operators don't do this, to avoid masking _out of bounds_
