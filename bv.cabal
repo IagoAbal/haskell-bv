@@ -14,6 +14,8 @@ Category:            Data, Bit Vectors
 Build-type:          Simple
 Cabal-version:       >=1.6
 
+Extra-source-files:  README.md CHANGES.md
+
 source-repository head
   type:     mercurial
   location: https://bitbucket.org/iago/bv-haskell
