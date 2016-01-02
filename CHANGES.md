@@ -7,7 +7,7 @@ In summary, I have fixed a few bugs, optimized a few functions, and added a few 
 Apart from that, and the usual clean up, there are also a handful of new API functions that I judged useful.
 
 For performance reasons, this release introduces GMP specific optimizations.
-The GMP-based backend is automatically used if available, unless _-f-no-gmp_ is specified.
+The GMP-based backend is automatically used if available, unless _-f -gmp_ is specified.
 
 Dependencies
 -----------
