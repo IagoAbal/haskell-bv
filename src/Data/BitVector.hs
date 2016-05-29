@@ -444,7 +444,6 @@ instance Num BV where
   (BV n1 a) + (BV n2 b) = BV n $ (a + b) `mod` 2^n
     where n = max n1 n2
   {-# INLINE (+) #-}
-  {-# INLINE (-) #-}
   (BV n1 a) * (BV n2 b) = BV n $ (a * b) `mod` 2^n
     where n = max n1 n2
   {-# INLINE (*) #-}
