@@ -1,10 +1,10 @@
 
 Name:                bv
-Version:             0.4.0
+Version:             0.4.1
 Synopsis:            Bit-vector arithmetic library
 Description:         Bit-vectors implemented as a thin wrapper over integers.
-Homepage:            http://bitbucket.org/iago/bv-haskell
-Bug-reports:         http://bitbucket.org/iago/bv-haskell/issues
+Homepage:            https://github.com/iagoabal/haskell-bv
+Bug-reports:         https://github.com/iagoabal/haskell-bv/issues
 License:             BSD3
 License-file:        LICENSE
 Author:              Iago Abal <mail@iagoabal.eu>
@@ -17,8 +17,8 @@ Cabal-version:       >=1.6
 Extra-source-files:  README.md CHANGES.md
 
 source-repository head
-  type:     mercurial
-  location: https://bitbucket.org/iago/bv-haskell
+  type:     git
+  location: https://github.com/iagoabal/haskell-bv.git
 
 Flag gmp
      Description: Using Integer GMP backend.
