@@ -29,11 +29,18 @@ Flag test
      Default: False
      Manual: True
 
+Flag dev
+     Description: Development options.
+     Default: False
+     Manual: True
+
 Library
   Exposed-modules:     Data.BitVector
   -- Other-modules:
   Hs-Source-Dirs:      src
   ghc-options:         -Wall -O2
+  if flag(dev)
+    ghc-options:       -Werror
   Extensions:          CPP
   Other-Extensions:    BangPatterns, DeriveDataTypeable, MagicHash
   Build-depends:       base >=4.6 && <5
@@ -53,6 +60,8 @@ Executable bv-tester
   Main-Is:             Properties.hs
   Hs-Source-Dirs:      src, test
   ghc-options:         -Wall
+  if flag(dev)
+    ghc-options:       -Werror
   Extensions:          CPP
   Other-Extensions:    BangPatterns, DeriveDataTypeable, MagicHash
 
