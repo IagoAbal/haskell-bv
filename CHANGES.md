@@ -1,8 +1,16 @@
 
+0.4.1
+=====
+
+Another maintenance release:
+
+* Fix compilation error with GHC 8.0.1.
+* Add `check-bounds' flag so the user decides whether to perform bounds checking.
+
 0.4.0
 =====
 
-This is a maintainance release, but it introduces changes to the API that required a new major version.
+This is a maintenance release, but it introduces changes to the API that required a new major version.
 In summary, I have fixed a few bugs, optimized a few functions, and added a few more properties (tests).
 Apart from that, and the usual clean up, there are also a handful of new API functions that I judged useful.
 
@@ -35,7 +43,7 @@ Interface
 0.3.0
 =====
 
-This is a maintainance release, but it introduces changes to the API that required a new major version.
+This is a maintenance release, but it introduces changes to the API that required a new major version.
 
 Dependencies
 -----------
