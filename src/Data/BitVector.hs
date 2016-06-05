@@ -89,7 +89,7 @@ module Data.BitVector
 import           Control.Exception ( assert )
 
 import           Data.Bits
-import           Data.Bool ( Bool(..), otherwise, (&&))
+import           Data.Bool ( Bool(..), otherwise, (&&), (||))
 import qualified Data.Bool as Bool
 import           Data.Data ( Data )
 import qualified Data.List as List
@@ -161,6 +161,20 @@ int u | msb u     = - nat(-u)
 
 instance Show BV where
   show (BV n a) = "[" ++ show n ++ "]" ++ show a
+
+----------------------------------------------------------------------
+--- Safety checking & Errors
+
+checkBounds :: Bool
+#if CHECK_BOUNDS
+checkBounds = True
+#else
+checkBounds = False
+#endif
+
+check :: Bool -> Bool
+check c = checkBounds && c
+{-# INLINE check #-}
 
 ----------------------------------------------------------------------
 --- Construction
@@ -318,8 +332,8 @@ infixl 9 @., @@, @:, !.
 -- >>> [4]2 @. 1
 -- True
 (@.) :: Integral ix => BV -> ix -> Bool
-(BV n a) @. i | 0 <= i' && i' < n = testBit a i'
-              | otherwise         = error "Data.BitVector.(@.): index of out bounds"
+(BV n a) @. i | check(i' < 0 || n <= i') = error "Data.BitVector.(@.): index of out bounds"
+              | otherwise                = testBit a i'
   where i' = fromIntegral i
 {-# INLINE (@.) #-}
 
@@ -335,8 +349,8 @@ index = flip (@.)
 -- >>> [4]7 @@ (3,1)
 -- [3]3
 (@@) :: Integral ix => BV -> (ix,ix) -> BV
-(BV _ a) @@ (j,i) | 0 <= i && i <= j = BV m $ (a `shiftR` i') `mod` 2^m
-                  | otherwise        = error "Data.BitVector.(@@): invalid range"
+(BV _ a) @@ (j,i) | check(i < 0 || j < i) = error "Data.BitVector.(@@): invalid range"
+                  | otherwise             = BV m $ (a `shiftR` i') `mod` 2^m
   where i' = fromIntegral i
         m  = fromIntegral $ j - i + 1
 {-# INLINE (@@) #-}
@@ -355,8 +369,8 @@ extract j i = (@@ (j,i))
   -- duplicating calls to 'fromIntegral' **and** this code should allow GHC
   -- to fuse 'fodlr' (from inlining 'frombits') with 'map'.
   where testBitAux i
-          | i' >= 0 && i' < n = testBit a i'
-          | otherwise = error "Data.BitVector.(@:): index out of bounds"
+          | check(i' < 0 || n <= i') = error "Data.BitVector.(@:): index out of bounds"
+          | otherwise                = testBit a i'
           where i' = fromIntegral i
 {-# INLINE (@:) #-}
 
@@ -369,8 +383,8 @@ extract j i = (@@ (j,i))
 -- >>> [3]3 !. 0
 -- False
 (!.) :: Integral ix => BV -> ix -> Bool
-(BV n a) !. i | 0 <= i' && i' < n = testBit a (n-i'-1)
-              | otherwise         = error "Data.BitVector.(!.): index out of bounds"
+(BV n a) !. i | check(i' < 0 || n <= i') = error "Data.BitVector.(!.): index out of bounds"
+              | otherwise                = testBit a (n-i'-1)
   where i' = fromIntegral i
 {-# INLINE (!.) #-}
 
@@ -378,8 +392,8 @@ extract j i = (@@ (j,i))
 --
 -- @least m u == u \@\@ (m-1,0)@
 least :: Integral ix => ix -> BV -> BV
-least m (BV _ a) | m' < 1    = error "Data.BitVector.least: non-positive index"
-                 | otherwise = BV m' $ a `mod` 2^m
+least m (BV _ a) | check(m' < 1) = error "Data.BitVector.least: non-positive index"
+                 | otherwise     = BV m' $ a `mod` 2^m
   where m' = fromIntegral m
 {-# INLINE least #-}
 
@@ -387,9 +401,9 @@ least m (BV _ a) | m' < 1    = error "Data.BitVector.least: non-positive index"
 --
 -- @most m u == u \@\@ (n-1,n-m)@
 most :: Integral ix => ix -> BV -> BV
-most m (BV n a) | m' < 1    = error "Data.BitVector.most: non-positive index"
-                | m' > n    = error "Data.BitVector.most: index out of bounds"
-                | otherwise = BV m' $ a `shiftR` (n-m')
+most m (BV n a) | check(m' < 1) = error "Data.BitVector.most: non-positive index"
+                | check(m' > n) = error "Data.BitVector.most: index out of bounds"
+                | otherwise     = BV m' $ a `shiftR` (n-m')
   where m' = fromIntegral m
 {-# INLINE most #-}
 
@@ -656,8 +670,8 @@ or_ = or
 -- >>> split 3 [4]15
 -- [[2]0,[2]3,[2]3]
 split :: Integral times => times -> BV -> [BV]
-split k (BV n a) | k > 0     = List.map (BV s) $ splitInteger s k' a
-                 | otherwise = error "Data.BitVector.split: non-positive splits"
+split k (BV n a) | k <= 0    = error "Data.BitVector.split: non-positive splits"
+                 | otherwise = List.map (BV s) $ splitInteger s k' a
   where k' = fromIntegral k
         (q,r) = divMod n k'
         s = q + signum r
@@ -668,8 +682,8 @@ split k (BV n a) | k > 0     = List.map (BV s) $ splitInteger s k' a
 -- >>> group 3 [4]15
 -- [[3]1,[3]7]
 group, group_ :: Integral size => size -> BV -> [BV]
-group s (BV n a) | s > 0     = List.map (BV s') $ splitInteger s' k a
-                 | otherwise = error "Data.BitVector.group: non-positive size"
+group s (BV n a) | s <= 0    = error "Data.BitVector.group: non-positive size"
+                 | otherwise = List.map (BV s') $ splitInteger s' k a
   where s' = fromIntegral s
         (q,r) = divMod n s'
         k = q + signum r

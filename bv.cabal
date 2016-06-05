@@ -29,6 +29,11 @@ Flag test
      Default: False
      Manual: True
 
+Flag check-bounds
+     Description: Bounds checking.
+     Default: True
+     Manual: True
+
 Flag dev
      Description: Development options.
      Default: False
@@ -38,6 +43,8 @@ Library
   Exposed-modules:     Data.BitVector
   -- Other-modules:
   Hs-Source-Dirs:      src
+  if flag(check-bounds)
+    cpp-options: -DCHECK_BOUNDS
   ghc-options:         -Wall -O2
   if flag(dev)
     ghc-options:       -Werror

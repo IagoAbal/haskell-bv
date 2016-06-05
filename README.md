@@ -47,6 +47,8 @@ Performance
 
 **Tip:** For best performance compile with _-fgmp_.
 
+**Tip:** If you are brave enough, compile with _-f -check-bounds_ (disables index bounds checking).
+
 The _BV_ datatype is simply a pair of an _Int_, to represent the
 _size_, and an arbitrary-precision _Integer_, to represent the
 _value_ of a bit-vector.
