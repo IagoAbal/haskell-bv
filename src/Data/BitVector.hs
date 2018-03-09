@@ -476,12 +476,7 @@ instance Num BV where
   {-# INLINE abs #-}
   signum u = bitVec 2 $ signum $ int u
   {-# INLINE signum #-}
-#if defined(MIN_VERSION_integer_gmp)
-  fromInteger i = bitVec n i
-    where n = I# (I.integerLog2# i +# 1#)
-#else
   fromInteger i = bitVec (integerWidth i) i
-#endif
   {-# INLINE fromInteger #-}
 
 -- | Bit-vector 'signum' as an 'Integral'.
@@ -927,19 +922,23 @@ maxNat :: Integral size => size -> Integer
 maxNat n = 2^n - 1
 {-# INLINE maxNat #-}
 
-#ifndef MIN_VERSION_integer_gmp
 -- | Minimum width of a bit-vector to represent a given integer number.
 --
--- >>> integerWith 4
+-- >>> integerWidth 4
 -- 3
 --
--- >>> integerWith (-4)
+-- >>> integerWidth (-4)
 -- 4
 integerWidth :: Integer -> Int
+#if defined(MIN_VERSION_integer_gmp)
+integerWidth !n
+  | n >= 0    = I# (I.integerLog2# n +# 1#)
+  | otherwise = I# (I.integerLog2# (-n) +# 2#)
+#else
 integerWidth !n
   | n >= 0    = go 1 1
   | otherwise = 1 + integerWidth (abs n)
   where go !k !k_max | k_max >= n = k
                      | otherwise  = go (k+1) (2*k_max+1)
-{-# INLINE integerWidth #-}
 #endif
+{-# INLINE integerWidth #-}
