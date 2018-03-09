@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -funbox-strict-fields #-}
 
 {-# LANGUAGE BangPatterns #-}
@@ -110,6 +111,9 @@ import           Prelude
   , Integral(..), Integer
   , Maybe(..)
   , Real(..)
+#if MIN_VERSION_base(4,11,0)
+  , Semigroup(..)
+#endif
   , Show(..), String
   , const
   , error
@@ -566,13 +570,20 @@ concat :: [BV] -> BV
 concat = join
 
 -- This is the most sensible monoid instance until we have size types!
+
 instance Monoid BV where
   mempty  = nil
   {-# INLINE mempty #-}
-  mappend = (#)
-  {-# INLINE mappend #-}
   mconcat = join
   {-# INLINE mconcat #-}
+#if !MIN_VERSION_base(4,11,0)
+  mappend = (#)
+  {-# INLINE mappend #-}
+#else
+instance Semigroup BV where
+  (<>) = (#)
+  {-# INLINE (<>) #-}
+#endif
 
 -- | Logical extension.
 --
