@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -funbox-strict-fields #-}
 
 {-# LANGUAGE BangPatterns #-}
@@ -24,7 +23,7 @@
 -- * Bit-vectors are interpreted as unsigned integers
 --   (i.e. natural numbers) except for some specific /signed/ operations.
 --
--- * Most operations are in some way /size-polymorphic/ and, if required, 
+-- * Most operations are in some way /size-polymorphic/ and, if required,
 --   will perform padding to adjust the size of input bit-vectors.
 --
 -- For documentation purposes we will write @[n]k@ to denote a bit-vector
@@ -580,6 +579,7 @@ instance Monoid BV where
   mappend = (#)
   {-# INLINE mappend #-}
 #else
+
 instance Semigroup BV where
   (<>) = (#)
   {-# INLINE (<>) #-}
