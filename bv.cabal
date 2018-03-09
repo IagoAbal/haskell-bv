@@ -52,7 +52,8 @@ Library
   Other-Extensions:    BangPatterns, DeriveDataTypeable, MagicHash
   Build-depends:       base >=4.6 && <5
   if impl(ghc) && flag(gmp)
-    Build-depends: integer-gmp, ghc-prim
+    Build-depends:     integer-gmp >=0.5.1,
+                       ghc-prim
 
 Executable bv-tester
   if flag(test)

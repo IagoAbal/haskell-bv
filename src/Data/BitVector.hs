@@ -3,7 +3,9 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 
-#if MIN_VERSION_integer_gmp(0,5,1)
+-- NOTE: defined(MIN_VERSION_integer_gmp) == package configured with -fgmp
+
+#if defined(MIN_VERSION_integer_gmp)
 {-# LANGUAGE MagicHash #-}
 #endif
 
@@ -97,10 +99,12 @@ import           Data.Monoid ( Monoid(..) )
 import           Data.Ord
 import           Data.Typeable ( Typeable )
 
-#if MIN_VERSION_integer_gmp(0,5,1)
+#if defined(MIN_VERSION_integer_gmp)
 import qualified GHC.Integer.Logarithms as I
 import           GHC.Prim ( (+#) )
 import           GHC.Types ( Int(..) )
+#else
+import           Data.Int ( Int )
 #endif
 
 import           Prelude
@@ -472,7 +476,7 @@ instance Num BV where
   {-# INLINE abs #-}
   signum u = bitVec 2 $ signum $ int u
   {-# INLINE signum #-}
-#if MIN_VERSION_integer_gmp(0,5,1)
+#if defined(MIN_VERSION_integer_gmp)
   fromInteger i = bitVec n i
     where n = I# (I.integerLog2# i +# 1#)
 #else
@@ -540,7 +544,7 @@ smod u@(BV n1 _) v@(BV n2 _) = bitVec n r
 lg2 :: BV -> BV
 lg2 (BV _ 0) = error "Data.BitVector.lg2: zero bit-vector"
 lg2 (BV n 1) = BV n 0
-#if MIN_VERSION_integer_gmp(0,5,1)
+#if defined(MIN_VERSION_integer_gmp)
 lg2 (BV n a) = BV n (toInteger a')
   where a' = I# (I.integerLog2# a)
 #else
