@@ -476,7 +476,8 @@ instance Num BV where
   {-# INLINE abs #-}
   signum u = bitVec 2 $ signum $ int u
   {-# INLINE signum #-}
-  fromInteger i = bitVec (integerWidth i) i
+  fromInteger !i = bitVec n i
+    where !n = if i >= 0 then integerWidth i + 1 else integerWidth i
   {-# INLINE fromInteger #-}
 
 -- | Bit-vector 'signum' as an 'Integral'.
@@ -498,7 +499,7 @@ instance Integral BV where
   {-# INLINE quotRem #-}
   divMod = quotRem
   {-# INLINE divMod #-}
-  toInteger = nat
+  toInteger = int
   {-# INLINE toInteger #-}
 
 -- | Bit-vector exponentiation.

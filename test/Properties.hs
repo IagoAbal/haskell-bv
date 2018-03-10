@@ -93,11 +93,13 @@ prop_bv_any i = forAll gSize $ \n ->
   let a = nat u in
   a >= 0 && a < 2^n
 
+-- * fromInteger
+
 prop_bv_nat :: Integer -> Property
 prop_bv_nat i = i >= 0 ==> nat(fromInteger i) == i
 
-prop_bv_neg :: Integer -> Property
-prop_bv_neg i = i < 0 ==> int(fromInteger i) == i
+prop_bv_id :: Integer -> Bool
+prop_bv_id i = toInteger (fromInteger i :: BV) == i
 
 -- * Indexing
 
