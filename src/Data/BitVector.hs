@@ -544,7 +544,10 @@ lg2 (BV n 1) = BV n 0
 lg2 (BV n a) = BV n (toInteger a')
   where a' = I# (I.integerLog2# a)
 #else
-lg2 (BV n a) = BV n $ toInteger $ integerWidth (a-1)
+lg2 (BV n a) = BV n $ go 0 1
+  where go !k !b | b == a    = k
+                 | b > a     = k-1
+                 | otherwise = go (k+1) (2*b)
 #endif
 {-# INLINE lg2 #-}
 

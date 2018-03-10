@@ -182,6 +182,14 @@ prop_exp_spec :: BV -> Property
 prop_exp_spec a = forAll anExp $ \e ->
   e /= 0 ==> pow a e ==. a^e
 
+-- * Logarithm
+
+prop_lg2 :: BV -> Property
+prop_lg2 a = a /= 0 ==>
+  let b = lg2 a in
+     2^(nat b) <= nat a
+  && nat a < 2^(nat b + 1)
+
 -- * Not
 
 prop_not_id :: BV -> Bool
