@@ -266,3 +266,8 @@ prop_split_join_id a = forallDivisorOf (size a) $ \n ->
 prop_group_join_id :: BV -> Property
 prop_group_join_id a = forallDivisorOf (size a) $ \n ->
   BV.join (BV.group n a) ==. a
+
+-- * Show & Read
+
+prop_show_read_id :: BV -> Bool
+prop_show_read_id a = read (show a) ==. a
