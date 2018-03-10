@@ -88,6 +88,7 @@ module Data.BitVector
   , showHex
   ) where
 
+import           Control.Monad ( Monad(..), when )
 import           Control.Exception ( assert )
 
 import           Data.Bits
@@ -97,6 +98,9 @@ import           Data.Data ( Data )
 import qualified Data.List as List
 import           Data.Monoid ( Monoid(..) )
 import           Data.Ord
+#ifdef __GLASGOW_HASKELL__
+import qualified Text.Read as R
+#endif
 import           Data.Typeable ( Typeable )
 
 #if defined(MIN_VERSION_integer_gmp)
@@ -168,6 +172,18 @@ int u | msb u     = - nat(-u)
 
 instance Show BV where
   show (BV n a) = "[" ++ show n ++ "]" ++ show a
+
+#ifdef __GLASGOW_HASKELL__
+instance R.Read BV where
+  readPrec = do
+    R.Punc "[" <- R.lexP
+    n <- R.step R.readPrec
+    when (n < 0) R.pfail
+    R.Punc "]" <- R.lexP
+    a <- R.step R.readPrec
+    when (a < 0) R.pfail
+    return (bitVec (n::Int) (a::Integer))
+#endif
 
 ----------------------------------------------------------------------
 --- Safety checking & Errors
