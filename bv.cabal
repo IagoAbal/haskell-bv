@@ -50,7 +50,7 @@ Library
     ghc-options:       -Werror
   Extensions:          CPP
   Other-Extensions:    BangPatterns, DeriveDataTypeable, MagicHash
-  Build-depends:       base >=4.6
+  Build-depends:       base >=4.6 && <5
   if impl(ghc) && flag(gmp)
     Build-depends:     integer-gmp >=0.5.1,
                        ghc-prim
@@ -58,7 +58,7 @@ Library
 Executable bv-tester
   if flag(test)
     Buildable:           True
-    Build-depends:       base >=4.6,
+    Build-depends:       base >=4.6 && <5,
                          QuickCheck >=2.4,
                          test-framework-quickcheck2 >=0.3,
                          test-framework-th >=0.2

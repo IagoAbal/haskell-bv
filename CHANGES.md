@@ -11,7 +11,7 @@ I hope this will not cause major problems, let me know otherwise.
 * As a result of the two previous changes, now `toInteger . fromInteger == id`, as it should be.
 * Add `Read BV` instance (based on `Text.Read`, so GHC-only).
 * Fix a few bugs in the non-GMP implementation. (Fortunately, GMP is the default.)
-* Remove upper bounds on package dependencies.
+* Remove upper bounds on testing dependencies.
 
 0.4.1
 =====
