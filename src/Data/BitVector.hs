@@ -61,20 +61,20 @@ module Data.BitVector
   , sdiv, srem, smod
   , lg2
   -- * List-like operations
-  , (#), cat, append, concat
+  , (#), append, concat
   , zeroExtend, signExtend
-  , foldl, foldl_
-  , foldr, foldr_
-  , reverse, reverse_
-  , replicate, replicate_
-  , and, and_
-  , or, or_
+  , foldl
+  , foldr
+  , reverse
+  , replicate
+  , and
+  , or
   , split
-  , group, group_
+  , group
   , join
   -- * Bitwise operations
   , module Data.Bits
-  , not, not_
+  , not
   , nand, nor, xnor
   , (<<.), shl, (>>.), shr, ashr
   , (<<<.), rol, (>>>.), ror
@@ -130,9 +130,6 @@ import           Prelude
   , undefined
   , ($), (.), (^), (++)
   )
-
-{-# DEPRECATED foldl_, foldr_, reverse_, replicate_, and_, or_, group_, not_ "Use corresponding versions without underscore" #-}
-{-# DEPRECATED cat "Use (#) or append instead" #-}
 
 ----------------------------------------------------------------------
 --- Bit-vectors
@@ -573,13 +570,9 @@ lg2 (BV n a) = BV n $ go 0 1
 infixr 5 #
 
 -- | Concatenation of two bit-vectors.
-(#), cat, append :: BV -> BV -> BV
+(#), append :: BV -> BV -> BV
 (BV n a) # (BV m b) = BV (n + m) ((a `shiftL` m) + b)
 {-# INLINE (#) #-}
-
-cat = (#)
-{-# INLINE cat #-}
-
 append = (#)
 {-# INLINE append #-}
 
@@ -631,44 +624,40 @@ signExtend d (BV n a)
 -- @foldl f z (fromBits [un, ..., u1, u0]) == ((((z \`f\` un) \`f\` ...) \`f\` u1) \`f\` u0)@
 --
 -- @foldl f e = fromBits . foldl f e . toBits@
-foldl, foldl_ :: (a -> Bool -> a) -> a -> BV -> a
+foldl :: (a -> Bool -> a) -> a -> BV -> a
 foldl f e (BV n a) = go (n-1) e
   where go i !x | i >= 0    = let !b = testBit a i in go (i-1) $ f x b
                 | otherwise = x
-foldl_ = foldl
 {-# INLINE foldl #-}
 
 -- |
 -- @foldr f z (fromBits [un, ..., u1, u0]) == un \`f\` (... \`f\` (u1 \`f\` (u0 \`f\` z)))@
 --
 -- @foldr f e = fromBits . foldr f e . toBits@
-foldr, foldr_ :: (Bool -> a -> a) -> a -> BV -> a
+foldr :: (Bool -> a -> a) -> a -> BV -> a
 foldr f e (BV n a) = go (n-1) e
  where go i !x | i >= 0    = let !b = testBit a i in f b (go (i-1) x)
                | otherwise = x
-foldr_ = foldr
 {-# INLINE foldr #-}
 
 -- |
 -- @reverse == fromBits . reverse . toBits@
-reverse, reverse_ :: BV -> BV
+reverse :: BV -> BV
 reverse bv@(BV n _) = BV n $ snd $ foldl go (1,0) bv
   where go (v,acc) b | b         = (v',acc+v)
                      | otherwise = (v',acc)
           where v' = 2*v
-reverse_ = reverse
 {-# INLINE reverse #-}
 
 -- |
 -- /Pre/: if @replicate_ n u@ then @n > 0@ must hold.
 --
 -- @replicate_ n == fromBits . concat . replicate n . toBits @
-replicate, replicate_ :: Integral size => size -> BV -> BV
+replicate :: Integral size => size -> BV -> BV
 replicate 0 _ = error "Data.BitVector.replicate: cannot replicate 0-times"
 replicate n u = go (n-1) u
   where go 0 !acc = acc
         go k !acc = go (k-1) (u # acc)
-replicate_ = replicate
 {-# INLINE replicate #-}
 
 -- | Conjunction.
@@ -676,11 +665,10 @@ replicate_ = replicate
 -- Essentially, @and == foldr1 (.&.)@.
 --
 -- Returns @[1]1@ if the input list is empty.
-and, and_ :: [BV] -> BV
+and :: [BV] -> BV
 and [] = ones 1
 and ws = BV n' $ List.foldl1' (.&.) $ List.map nat ws
   where n' = List.maximum $ List.map size ws
-and_ = and
 {-# INLINE and #-}
 
 -- | Disjunction.
@@ -688,11 +676,10 @@ and_ = and
 -- Essentially, @or == foldr1 (.|.)@.
 --
 -- Returns @[1]0@ if the input list is empty.
-or, or_ :: [BV] -> BV
+or :: [BV] -> BV
 or [] = zeros 1
 or ws = BV n' $ List.foldl1' (.|.) $ List.map nat ws
   where n' = List.maximum $ List.map size ws
-or_ = or
 {-# INLINE or #-}
 
 -- | Split a bit-vector /k/ times.
@@ -711,13 +698,12 @@ split k (BV n a) | k <= 0    = error "Data.BitVector.split: non-positive splits"
 --
 -- >>> group 3 [4]15
 -- [[3]1,[3]7]
-group, group_ :: Integral size => size -> BV -> [BV]
+group :: Integral size => size -> BV -> [BV]
 group s (BV n a) | s <= 0    = error "Data.BitVector.group: non-positive size"
                  | otherwise = List.map (BV s') $ splitInteger s' k a
   where s' = fromIntegral s
         (q,r) = divMod n s'
         k = q + signum r
-group_ = group
 {-# INLINE group #-}
 
 splitInteger :: (Integral size, Integral times) =>
@@ -799,9 +785,8 @@ instance Bits BV where
   {-# INLINE popCount #-}
 
 -- | An alias for 'complement'.
-not, not_ :: BV -> BV
+not :: BV -> BV
 not = complement
-not_ = not
 {-# INLINE not #-}
 
 -- | Negated '.&.'.
