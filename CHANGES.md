@@ -21,7 +21,7 @@ Note: From now on the revision number (aka _patch level_) _0_ will be omitted (s
 Another maintenance release:
 
 * Fix compilation error with GHC 8.0.1.
-* Add `check-bounds' flag so the user decides whether to perform bounds checking.
+* Add `check-bounds` flag so the user decides whether to perform bounds checking.
 
 0.4.0
 =====
