@@ -1,4 +1,18 @@
 
+0.5.0
+=====
+
+Note that changes in `fromInteger` and `toInteger` implementations break backwards compatibility.
+I hope this will not cause major problems, let me know otherwise.
+
+* Make _bv_ with compatible with GHC 8.4.1 (_base_ 4.11). Thanks to Kosyrev Serge!
+* Define `toInteger` as `int` rather than `nat`.
+* Make `fromInteger` consistent and always encode in two's complement, also positive integers.
+* As a result of the two previous changes, now `toInteger . fromInteger == id`, as it should be.
+* Add `Read BV` instance (based on `Text.Read`, so GHC-only).
+* Fix a few bugs in the non-GMP implementation. (Fortunately, GMP is the default.)
+* Remove upper bounds on package dependencies.
+
 0.4.1
 =====
 
