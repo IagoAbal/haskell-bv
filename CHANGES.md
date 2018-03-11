@@ -1,6 +1,6 @@
 
-0.5.0
-=====
+0.5
+===
 
 Note that changes in `fromInteger` and `toInteger` implementations break backwards compatibility.
 I hope this will not cause major problems, let me know otherwise.
@@ -12,6 +12,8 @@ I hope this will not cause major problems, let me know otherwise.
 * Add `Read BV` instance (based on `Text.Read`, so GHC-only).
 * Fix a few bugs in the non-GMP implementation. (Fortunately, GMP is the default.)
 * Remove upper bounds on testing dependencies.
+
+Note: From now on the revision number (aka _patch level_) _0_ will be omitted (so _x.y_ instead of _x.y.0_).
 
 0.4.1
 =====
