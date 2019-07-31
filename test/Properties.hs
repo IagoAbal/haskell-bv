@@ -271,3 +271,13 @@ prop_group_join_id a = forallDivisorOf (size a) $ \n ->
 
 prop_show_read_id :: BV -> Bool
 prop_show_read_id a = read (show a) ==. a
+
+-- * clearBit
+
+prop_clear_bit :: BV -> Property
+prop_clear_bit a = forallIndexOf a $ \i ->
+                     let cb = clearBit a i
+                     in List.and
+                          [ cb @. i' == ((i /= i') && a @. i')
+                          | i' <- [0 .. size a ]
+                          ]
