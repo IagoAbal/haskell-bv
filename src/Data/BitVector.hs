@@ -747,6 +747,9 @@ instance Bits BV where
 #endif
   bit i = BV (i+1) (2^i)
   {-# INLINE bit #-}
+  clearBit u@(BV n _) i = u .&. v
+    where v = bitVec n $ 2^n - 2^i - (1 :: Integer)
+  {-# INLINE clearBit #-}
   testBit (BV n a) i | i < n     = testBit a i
                      | otherwise = False
   {-# INLINE testBit #-}
