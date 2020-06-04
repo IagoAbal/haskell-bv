@@ -49,8 +49,10 @@ Library
   if flag(dev)
     ghc-options:       -Werror
   Extensions:          CPP
-  Other-Extensions:    BangPatterns, DeriveDataTypeable, MagicHash
-  Build-depends:       base >=4.6 && <5
+  Other-Extensions:    BangPatterns, DeriveDataTypeable, MagicHash,
+                       DeriveGeneric, DeriveAnyClass
+  Build-depends:       base >=4.6 && <5,
+                       deepseq
   if impl(ghc) && flag(gmp)
     Build-depends:     integer-gmp >=0.5.1,
                        ghc-prim
