@@ -2,6 +2,8 @@
 
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
 
 -- NOTE: defined(MIN_VERSION_integer_gmp) == package configured with -fgmp
 
@@ -88,6 +90,7 @@ module Data.BitVector
   , showHex
   ) where
 
+import           Control.DeepSeq ( NFData )
 import           Control.Monad ( Monad(..), when )
 import           Control.Exception ( assert )
 
@@ -98,6 +101,7 @@ import           Data.Data ( Data )
 import qualified Data.List as List
 import           Data.Monoid ( Monoid(..) )
 import           Data.Ord
+import           GHC.Generics ( Generic )
 #ifdef __GLASGOW_HASKELL__
 import qualified Text.Read as R
 #endif
@@ -140,7 +144,7 @@ data BV
       size :: !Int      -- ^ The /size/ of a bit-vector.
     , nat  :: !Integer  -- ^ The value of a bit-vector, as a natural number.
     }
-  deriving (Data,Typeable)
+  deriving (Data,Generic,Typeable, NFData)
 
 -- | An alias for 'BV'.
 type BitVector = BV
