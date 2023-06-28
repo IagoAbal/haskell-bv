@@ -131,7 +131,6 @@ import           Prelude
   , flip, fromIntegral
   , maxBound
   , snd
-  , undefined
   , ($), (.), (^), (++)
   )
 
@@ -757,9 +756,9 @@ instance Bits BV where
   testBit (BV n a) i | i < n     = testBit a i
                      | otherwise = False
   {-# INLINE testBit #-}
-  bitSize = undefined
+  bitSize = width
 #if MIN_VERSION_base(4,7,0)
-  bitSizeMaybe = const Nothing
+  bitSizeMaybe = Just . width
 #endif
   isSigned = const False
   shiftL (BV n a) k
@@ -790,6 +789,11 @@ instance Bits BV where
   {-# INLINE rotateR #-}
   popCount (BV _ a) = assert (a >= 0) $ popCount a
   {-# INLINE popCount #-}
+
+#if MIN_VERSION_base(4,7,0)
+instance FiniteBits BV where
+  finiteBitSize = width
+#endif
 
 -- | An alias for 'complement'.
 not :: BV -> BV
